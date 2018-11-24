@@ -103,13 +103,13 @@ dic <- function(stanfit) {
 
 parse_vals <- function(action, param) {
 switch(action,
-	pval={
-		if (param < 0.001) {
-			 return("< 0.001")
-		} else {
-			 return(paste("=", round(param, 3)))
-		}
-	})
+  pval={
+    if (param < 0.001) {
+       return("< 0.001")
+    } else {
+       return(paste("=", round(param, 3)))
+    }
+  })
 }
 
 load_subset <- function(filename, id_vector) {
