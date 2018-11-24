@@ -1,0 +1,3185 @@
+#+TITLE: *Neural computations of threat in the aftermath*
+#+TITLE: *of combat trauma*
+* Preamble                                                      :ignore:
+** Comment                                                      :ignore:
+# ----------------------------------------------------------------------
+# - Turn on synonyms by starting synosaurus-mode
+# - Look up words using C-c sr
+# - Turn on dictionary by starting flyspell-mode
+# - Count words by section using org-wc-display
+# ----------------------------------------------------------------------
+** org specific settings                                        :ignore:
+# ----------------------------------------------------------------------
+#+OPTIONS: email:nil toc:nil num:nil H:5 author:nil date:t tex:t
+#+STARTUP: align fold
+#+SEQ_TODO: TODO(t) | DONE(d)
+#+TAGS: figure(f) check(c) noexport(n) ignore(i)
+#+LANGUAGE: en
+#+EXCLUDE_TAGS: noexport TODO
+#+DATE: {{{time(%Y-%m-%d %H:%M)}}}
+# ----------------------------------------------------------------------
+** Latex header                                                 :ignore:
+# ----------------------------------------------------------------------
+#+LATEX_CLASS:  myarticle
+#+LATEX_HEADER: \usepackage{graphicx}
+#+LATEX_HEADER: \usepackage{textcomp}
+#+LATEX_HEADER: \usepackage{setspace}
+#+LATEX_HEADER: \usepackage{url}
+#+LATEX_HEADER: \usepackage{amsmath}
+# LATEX_HEADER: \usepackage{multibbl}
+# LATEX_HEADER: \newbibliography{main}
+# LATEX_HEADER: \newbibliography{supplement}
+#+LATEX_HEADER: \usepackage{cite}
+#+LATEX_HEADER: \usepackage{times}
+#+LATEX_HEADER: \usepackage[labelfont=bf]{caption}
+#+LATEX_HEADER: \usepackage[T1]{fontenc}
+# LATEX_HEADER: \newcommand{\noop}[1]{} 
+#+LATEX_HEADER: \graphicspath{{../output/figures/}{../lib/}}
+#+LATEX_HEADER: \topmargin 0.0cm
+#+LATEX_HEADER: \oddsidemargin 0.2cm
+#+LATEX_HEADER: \textwidth 16cm 
+#+LATEX_HEADER: \textheight 21cm
+#+LATEX_HEADER: \footskip 1.0cm
+# ----------------------------------------------------------------------
+** Authors and affiliations                                     :ignore:
+# ----------------------------------------------------------------------
+#+LATEX_HEADER: \author{
+#+LATEX_HEADER: Philipp Homan$^{1}$,  
+#+LATEX_HEADER: Ifat Levy$^{2}$,
+#+LATEX_HEADER: Eric Feltham$^{3}$,
+#+LATEX_HEADER: Charles Gordon$^{3}$,\\
+#+LATEX_HEADER: Jingchu Hu$^{1}$,
+#+LATEX_HEADER: Jian Li$^{4}$,
+#+LATEX_HEADER: Robert H. Pietrzak$^{3}$,
+#+LATEX_HEADER: Steven Southwick$^{3}$,\\
+#+LATEX_HEADER: John H. Krystal$^{3}$, 
+#+LATEX_HEADER: Ilan Harpaz-Rotem$^{3*\dagger}$,
+#+LATEX_HEADER: Daniela Schiller$^{1,5*\dagger}$\\
+#+LATEX_HEADER: \\
+#+LATEX_HEADER: \normalsize{$^{1}$Department of Psychiatry}\\  
+#+LATEX_HEADER: \normalsize{Icahn School of Medicine at Mount Sinai, }
+#+LATEX_HEADER: \normalsize{New York, NY, USA.}\\
+#+LATEX_HEADER: \normalsize{$^{2}$Departments of Comparative Medicine,}
+#+LATEX_HEADER: \normalsize{Neuroscience and Psychology}\\
+#+LATEX_HEADER: \normalsize{Yale University, New Haven, CT, USA.}\\
+#+LATEX_HEADER: \normalsize{$^{3}$Department of Psychiatry}\\
+#+LATEX_HEADER: \normalsize{Yale University School of Medicine,}
+#+LATEX_HEADER: \normalsize{New Haven, CT, USA }
+#+LATEX_HEADER: \normalsize{and the}\\
+#+LATEX_HEADER: \normalsize{U.S. Department of Veterans Affairs National}
+#+LATEX_HEADER: \normalsize{Center for PTSD, }\\
+#+LATEX_HEADER: \normalsize{Clinical Neurosciences Division,}\\
+#+LATEX_HEADER: \normalsize{VA Connecticut Healthcare System,}
+#+LATEX_HEADER: \normalsize{West Haven, CT, USA.}\\
+#+LATEX_HEADER: \normalsize{$^{4}$School of Psychological and Cognitive}
+#+LATEX_HEADER: \normalsize{Sciences and Beijing Key Laboratory of}\\
+#+LATEX_HEADER: \normalsize{Behavior and Mental Health, Peking}
+#+LATEX_HEADER: \normalsize{University, Beijing, China}\\
+#+LATEX_HEADER: \normalsize{$^{5}$Department of Neuroscience}  
+#+LATEX_HEADER: \normalsize{and Friedman Brain Institute}\\  
+#+LATEX_HEADER: \normalsize{Icahn School of Medicine at Mount Sinai, }
+#+LATEX_HEADER: \normalsize{New York, NY, USA.}\\
+#+LATEX_HEADER: \\
+#+LATEX_HEADER: \normalsize{$^{*}$These authors contributed} 
+#+LATEX_HEADER: \normalsize{equally to this work.}\\  
+#+LATEX_HEADER: \normalsize{$^{\dagger}$Corresponding authors: }
+#+LATEX_HEADER: \normalsize{daniela.schiller@mssm.edu, }
+#+LATEX_HEADER: \normalsize{ilan.harpaz-rotem@yale.edu.}\\
+#+LATEX_HEADER: \\
+#+LATEX_HEADER: \normalsize{\textbf{Keywords:} } 
+#+LATEX_HEADER: \normalsize{PTSD; fear conditioning; reversal;} 
+#+LATEX_HEADER: \normalsize{amygdala; value; learning rate;}\\ 
+#+LATEX_HEADER: \normalsize{associability; prediction error}
+#+LATEX_HEADER: }
+# ----------------------------------------------------------------------
+** Buffer-wide source code blocks                               :ignore:
+# ----------------------------------------------------------------------
+# Set elisp variables need for nice formatting We want no new lines in
+# inline results and a paragraph size of 80 characters Important: this
+# has to be evaluated witch C-c C-c in order to work in the current
+# buffer
+#+BEGIN_SRC emacs-lisp :exports none :results silent
+
+; set timestamp format
+;(setq org-export-date-timestamp-format "%FT%T%z")
+(require 'org-wc)
+(flyspell-mode t)
+(synosaurus-mode t)
+(auto-complete-mode t)
+(linum-mode t)
+(whitespace-mode t)
+(setq org-babel-inline-result-wrap "%s")
+(setq org-export-with-broken-links "mark")
+(setq fill-column 72)
+(setq whitespace-line-column 72)
+;(setq org-latex-caption-above '(table image))
+(setq org-latex-caption-above nil)
+(org-toggle-link-display)
+; don't remove logfiles at export
+(setq org-latex-remove-logfiles nil)
+
+; Keybindings
+; (global-set-key (kbd "<f7> c") "#+CAPTION: ")
+(defun setfillcolumn72 ()
+   (interactive)
+   (setq fill-column 72)
+ )
+
+(defun setfillcolumn42 ()
+   (interactive)
+   (setq fill-column 42)
+ )
+(define-key org-mode-map (kbd "C-c #") "#+CAPTION: ")
+(define-key org-mode-map (kbd "C-c f c 4 2") 'setfillcolumn42)
+(define-key org-mode-map (kbd "C-c f c 7 2") 'setfillcolumn72)
+
+(setq org-odt-category-map-alist
+    '(("__Figure__" "*Figure*" "value" "Figure" org-odt--enumerable-image-p)))
+
+; let ess not ask for starting directory
+(setq ess-ask-for-ess-directory nil)
+
+;(setq org-latex-pdf-process '("latexmk -pdflatex='xelatex
+;-output-directory=../output/tex/ -interaction nonstopmode' -pdf
+;-bibtex -f %f"))
+
+;(setq org-latex-pdf-process '("latexmk -pdf 
+; -pdflatex='xelatex -shell-escape -interaction nonstopmode' -bibtex -f %f "))
+(setq org-latex-pdf-process '("latexmk -pdflatex='xelatex -interaction nonstopmode' -shell-escape -pdf -bibtex -f %f"))
+
+(setq org-latex-logfiles-extensions 
+    (quote("bcf" "blg" "fdb_latexmk" "fls" 
+    "figlist" "idx" "log" "nav" "out" "ptc" 
+    "run.xml" "snm" "toc" "vrb" "xdv")))
+
+(add-to-list 'org-structure-template-alist
+  '("ca" "#+CAPTION: "))
+
+(add-to-list 'org-structure-template-alist
+  '("he" "#+LATEX_HEADER: "))
+
+(add-to-list 'org-structure-template-alist
+  '("dc" "src_R[:session]{}"))
+
+(add-to-list 'org-structure-template-alist
+  '("sr" "#+HEADER: :exports none
+,#+BEGIN_SRC R :colnames yes :results silent :session\n")) 
+
+(add-to-list 'org-structure-template-alist
+  '("er" "#+END_SRC"))
+  
+; custom links
+; set tags identation
+(setq org-tags-column -72)
+
+#+END_SRC
+# ----------------------------------------------------------------------
+# End preamble
+# ----------------------------------------------------------------------
+# Start with doublespacing 
+\doublespacing
+\clearpage
+
+** End preamble                                                 :ignore:
+# ----------------------------------------------------------------------
+# Start with doublespacing 
+\clearpage
+\doublespacing
+
+* Abstract
+** Code                                                         :ignore:
+#+HEADER: :exports none
+#+BEGIN_SRC R :results silent :session
+source("comp_load.R")
+dics <- read.csv("../output/tables/comp_dic.csv")
+compa <- comp %>% filter(trial==1)
+
+n_vptsd <- length(unique(comp$id[comp$group=="VPTSD"]))
+n_vcc <- length(unique(comp$id[comp$group=="VCC"]))
+
+#+END_SRC
+
+** Text                                                         :ignore:
+By combining computational, morphological, and functional analyses, this
+study relates latent markers of associative threat learning to overt
+PTSD symptoms in combat veterans. Using reversal learning, we found that
+symptomatic veterans showed greater physiological adjustment to cues
+that did not predict what they had expected, indicating greater
+sensitivity to prediction errors for negative outcomes. This exaggerated
+weighting of prediction errors shapes the dynamic learning rate
+(associability) and value of threat predictive cues. The degree to which
+the striatum tracked the associability partially mediated the positive
+correlation between prediction error weights and PTSD symptoms,
+suggesting that both increased prediction error weights and decreased
+striatal tracking of associability independently contribute to PTSD
+symptoms. Furthermore, decreased neural tracking of value in the
+amygdala, in addition to smaller amygdala volume, independently
+corresponded to higher PTSD symptom severity. These results provide
+evidence for distinct neurocomputational contributions to PTSD symptoms.
+
+\clearpage
+
+* Introduction
+** Narrative intro                                              :ignore:
+*** Text                                                        :ignore:
+Upon returning from combat, why do some military personnel develop
+symptoms of posttraumatic stress disorder (PTSD) while others do not?
+PTSD symptoms may develop after exposure to a traumatic event and are
+characterized by symptoms of re-experiencing, avoidance of trauma
+reminders, negative alterations in cognitions and mood, and alterations
+in arousal and reactivity.\cite{APA2013,Pietrzak2012,Harpaz-Rotem2014} A
+prominent learning theory suggests that PTSD symptoms largely reflect
+maladaptive associative learning during and after a traumatic
+event.\cite{Lissek2015} Associative learning of threat \cite{Pavlov1927}
+is the process by which benign stimuli such as people, locations, and
+objects (i.e., conditioned stimuli), acquire threatening properties
+through pairing with an aversive outcome, and have the capacity to
+trigger and maintain defensive responses well after the aversive event
+is decoupled from the conditioned stimuli. Although abnormal threat
+conditioning features prominently in theoretical accounts of PTSD, the
+manner in which learning becomes dysfunctional is less
+clear.\cite{Lissek2015}
+
+Accumulating evidence suggests a variety of impaired learning processes
+in PTSD, including overgeneralization, heightened contextual anxiety,
+diminished inhibition in response to safety cues, and failure to retain
+extinction learning.\cite{Lissek2015} These findings link PTSD to basic
+learning processes, but they do not disambiguate specific aspects of
+learning that may contribute to the disorder, such as the learning rate
+or the computation of aversive value. It is possible that PTSD-related
+abnormalities are influenced by learning parameters that we cannot
+directly observe but are able to infer from observable
+behavior. Computational indices, which are estimate such latent learning
+parameters, may be able to detect such differences.
+
+
+Theories of associative learning, such as the Pearce-Hall learning
+mechanism, \cite{Pearce1980} envision that learning cue-outcome
+associations involves tracking of several quantities: prediction errors
+for reinforcement, which occur when the outcome is more or less than
+expected (i.e., surprising); and associability, reflecting the extent to
+which each cue has been previously accompanied by surprise. The value
+assigned to cues in the environment is updated in each encounter based
+on the prediction error. Associability dynamically guides value learning
+by accelerating it to cues whose predictions are poor (large prediction
+errors), and decelerating it when predictions become reliable. Here, we
+used the Pearce-Hall learning model to estimate the computations
+performed during associative threat learning
+\cite{Schiller2008a,Li2011,Atlas2016} and how the behavioral and neural
+tracking of these computations relate to PTSD symptom severity.
+
+To cover the full spectrum of symptomatology, we recruited
+src_R[:session]{nrow(compa)} {{{results(54)}}} combat-exposed veterans
+with a wide range of PTSD symptoms based on the gold-standard structured
+clinical interview for PTSD--the Clinician-Administered PTSD Scale (CAPS;
+Table [[tabsamp]] and Online Supplementary Material;
+Fig. [[fighist]]). Twenty-four participants had a diagnosis of PTSD, and
+30 participants were combat veteran controls without PTSD diagnosis. We
+used the threat reversal paradigm -- where flexible updating of threat
+responses is required -- together with computational modeling, to
+uncover latent learning parameters that are relevant for the
+symptomatology.
+
+We expected that the observed threat learning behavior would be similar
+across different levels of symptoms (reflecting the unspecific and
+subtle aberrations found in threat response conditioning in PTSD in
+general \cite{Duits2015,Browning2015}) but that the underlying neural
+computations might reveal disease-related differences.
+
+The amygdala is a locus of associative learning in the
+brain,\cite{Schiller2008a,LeDoux2000} and prior work has linked PTSD
+symptoms with abnormal amygdala structure,\cite{Pietrzak2015} as well as
+heightened amygdala reactivity to stimuli laden with emotionally
+negative content.\cite{Admon2009,Neumeister2017} Our goal here was thus
+to examine whether the structural and functional implementations of
+specific learning computations in the amygdala relate to PTSD symptoms,
+and whether the threat learning-related function and structural volume
+of the amygdala contribute to PTSD symptoms in a complementary manner.
+
+** Narrative methods                                            :ignore:
+*** Text                                                        :ignore:
+The experiment began with an acquisition phase, in which two visual
+stimuli (mildly angry faces) were presented consecutively in a
+pseudo-randomized order. One of the stimuli was paired with a mild
+electric shock on one-third of the trials (face A), while the other was
+never paired with the shock (face B). The acquisition phase was
+immediately followed by a reversal phase, in which the contingencies
+were flipped such that the formerly neutral stimulus (face B) was now
+paired with a shock and face A became the neutral stimulus
+(Fig. [[figtask]]a). Skin conductance response (SCR) served as the index
+of conditioned defensive responses.
+
+* Results 
+** Irrespective of symptoms, veterans show successful reversal learning
+*** Code                                               :noexport:ignore:
+#+HEADER: :exports none
+#+BEGIN_SRC R :results silent :session 
+
+# acq - caps and rev - caps relationships
+lmfit9a <- lm(caps ~ acq, data=compa)
+lmfit9r <- lm(caps ~ rev, data=compa)
+
+#+END_SRC
+
+*** Text                                                        :ignore:
+Combat exposed veterans 
+(/N/ = src_R[:session]{nrow(compa)} {{{results(54)}}}) successfully 
+acquired and reversed threat conditioning, as assessed by the 
+differential SCR (face A vs face B) in
+the two phases of the task (Fig. [[figtask]]b). To test for a potential
+relationship between threat reversal and PTSD symptoms, we used a linear
+regression with threat reversal index as predictor and CAPS scores as
+the outcome. Reversal index was calculated by subtracting stimulus
+discrimination in reversal (i.e., face A minus face B) from stimulus
+discrimination in acquisition (Fig. [[figtask]]b). Controlling for
+irrelevant variables (age and gender), the regression revealed no
+significant relationship between symptoms and reversal learning
+(src_R[:session]{parse_lm(lm(caps ~ age + gender + revlearn,
+data=compa), 4)} {{{results(\beta = 0.02\, /t/ (50) = 0.13\, /P/ =
+0.894)}}}). We also did not find evidence that PTSD symptoms were
+related to stimulus discrimination during threat acquisition only
+(src_R[:session]{parse_lm(lmfit9a, 2)} {{{results(\beta = 0.03\, /t/
+(52) = 0.22\, /P/ = 0.827)}}}) or during the reversal phase only
+(src_R[:session]{parse_lm(lmfit9r, 2)} {{{results(\beta = 0.02\, /t/
+(52) = 0.12\, /P/ = 0.901)}}}). Additional ways of categorizing veterans
+as highly and mildly affected did not reveal any significant results
+(see Online Supplementary Material, "Sample characteristics"). These results
+motivate the use of a computational approach that could potentially
+reveal latent learning differences across individuals exposed to combat
+trauma.
+
+** Pearce-Hall hybrid model best describes conditioned threat responses
+*** Code                                                        :ignore:
+#+HEADER: :exports none
+#+BEGIN_SRC R :results silent :session
+
+# compute model mle model fits
+#-----------------------------------------------------------------------
+mlealm <- compa %>% left_join(oldmle) %>%
+  gather(key=model, value=loglik, 
+     minllrwscrsqrtrc,
+     minllhvscrsqrtrc,
+     minllhascrsqrtrc,
+     minllhavscrsqrtrc) %>%
+  mutate(k=rep(c(3, 4, 3, 3), each=54),
+         n=56,
+         bic=2*loglik + k * log(n)) %>%
+  group_by(model) %>%
+  dplyr::summarize(sumloglik=sum(loglik),
+                   sumbic=sum(bic)) %>%
+  mutate(modelname=c("Hybrid (alpha)", "Hybrid (alpha + V)",
+                     "Hybrid (V)", "RW")) 
+
+# create a supplementary figure
+#-----------------------------------------------------------------------
+ps2 <- ggplot(mlealm, aes(x=modelname, y=sumbic)) +
+  geom_bar(stat="identity") +
+  theme_gray(base_size=30) + 
+  theme(
+  #  axis.text.x=element_text(angle=90, hjust=1, vjust=0.5)
+  ) +
+  coord_flip() +
+  #ylab("-Log Likelihood") +
+  ylab("BIC") +
+  xlab("") +
+  annotate("text", y=1.1 * min(mlealm$sumbic), 
+           x=0.7, label="*", size=16)
+ggsave(plot=ps2, filename="../output/figures/comp_figs2.pdf",
+       width=10.7, height=3.07)
+
+# calculate llr tests
+# comparisons: 
+# - RW vs H(v): df=2
+# - RW vs H(a + v): df=3
+# - H(v) vs H(a + v): df=1
+# - H(a) vs H(a + v): df=1
+#-----------------------------------------------------------------------
+chisq <- c(
+  2 * (mlealm$sumloglik[4] - mlealm$sumloglik[3]),
+  2 * (mlealm$sumloglik[4] - mlealm$sumloglik[2]),
+  2 * (mlealm$sumloglik[3] - mlealm$sumloglik[2]),
+  2 * (mlealm$sumloglik[1] - mlealm$sumloglik[2])
+)
+
+#pvals <- c(
+#  pchisq(chisq[1], 2, lower=FALSE),
+#  pchisq(chisq[2], 3, lower=FALSE),
+#  pchisq(chisq[3], 1, lower=FALSE),
+#  pchisq(chisq[4], 1, lower=FALSE)
+#)
+# degrees of freedom
+# note the number of parameters: they have
+# to be multiplied by the sample size!
+#-----------------------------------------------------------------------
+def <- c(2, 3, 1, 1) * nrow(compa)
+
+# how do model fits interact with ptsd symptoms?
+# note: n = number of non reinforced trials
+#-----------------------------------------------------------------------
+mleal <- compa %>% left_join(oldmle) %>%
+  gather(key=model, value=loglik, 
+     minllhascrsqrtrc,
+     minllhavscrsqrtrc,
+     minllhvscrsqrtrc,
+     minllrwscrsqrtrc) %>%
+  mutate(modelname=rep(mlealm$modelname, each=nrow(compa))) %>%
+  mutate(k=rep(c(3, 4, 3, 3), each=nrow(compa)),
+         n=56, 
+         bic=2*loglik + k * log(n))
+
+bics <- mleal %>% group_by(modelname) %>%
+  dplyr::summarize(bic=sum(bic))
+
+# create a supplementary figure of mle modeling results 
+#-----------------------------------------------------------------------
+ps3 <- ggplot(mleal, aes(x=bic, y=caps)) +
+  geom_point(size=4) +
+  geom_smooth(method="lm") +
+  facet_wrap(~modelname) +
+  theme_gray(base_size=30) +
+  xlab("BIC") +
+  ylab("CAPS")
+
+ggsave(plot=ps3, filename="../output/figures/comp_figs3.pdf",
+       width=10.7, height=8.07)
+
+# fmri related, rw model
+#-----------------------------------------------------------------------
+# load scid 
+scid <- read.csv("../preproc/clinical/ptsd_clinical_scid.csv") %>%
+  mutate(hascomorb=ifelse(value==3&scid!="PTSD", 1, 0)) %>%
+  group_by(id) %>%
+  dplyr::summarize(numofcomorb=sum(hascomorb, na.rm=TRUE)) %>%
+  mutate(hascomorb=ifelse(numofcomorb > 0, TRUE, FALSE))
+
+
+# hybrid model, behav results
+#-----------------------------------------------------------------------
+fig3ls <- fig3fast()
+fig3df <- fig3ls[[5]]
+
+# correlation of symptoms and learning rate eta
+lmhave <- lm(caps ~ age + gender + eta, data=fig3df)
+
+# spearman rank correlation to be less susceptible to outliers
+#-----------------------------------------------------------------------
+lmhave.sp <- cor.test(~caps + eta, data=fig3df, method="spearman")
+
+
+
+# men only
+lmhave1.1 <- lm(caps ~ age + eta, data=fig3df %>% filter(gender=="M"))
+
+# hybrid model
+#-----------------------------------------------------------------------
+fig6ls <- fig6()
+
+# extract data frame used in hybrid figure and join with sub frames of
+# covariates
+fig6df <- fig6ls[[2]] %>%
+  filter(component != "value") %>%
+  left_join(meds) %>%
+  left_join(scid)
+
+lmerfit <- lmer(betamu ~ region * component * caps + (1 + region|id),
+                data=fig6df %>% filter(region != "Amygdala"))
+a2 <- anova(lmerfit)
+
+# again, without women
+lmerfit <- lmer(betamu ~ region * component * caps +
+                  (1 + region|id),
+                data=fig6df %>% filter(gender=="M"))
+a2.1 <- anova(lmerfit)
+
+# again, including covariates
+lmerfit <- lmer(betamu ~ meds + numofcomorb + 
+    region * component * caps + (1 + region|id), data=fig6df) 
+a2.2 <- anova(lmerfit)
+
+# again, including covariates
+lmerfit <- lmer(betamu ~ bdi + region * component * caps
+                + (1 + region|id), data=fig6df)
+a2.3 <- anova(lmerfit)
+
+# again, including covariates
+lmerfit <- lmer(betamu ~ stais + region * component * caps +
+                  (1 + region|id), data=fig6df)
+a2.4 <- anova(lmerfit)
+
+# again, including covariates
+lmerfit <- lmer(betamu ~ asi + region * component * caps +
+                  (1 + region|id), data=fig6df)
+a2.5 <- anova(lmerfit)
+
+# hybrid model, value regressor; focus on amygdala
+#-----------------------------------------------------------------------
+fig4ls <- fig4()
+fig4df <- fig4ls[[6]]
+
+# full structure function models
+# left
+lmvhavl <- lm(caps ~ age + gender + EstimatedTotalIntraCranialVol +
+              fmrimovparam +
+              Left.Amygdala + beta,
+          data=fig4df %>% filter(roi=="left_amygdala_functional_roi"))
+
+# spearman rank
+lmvhavl.sp1 <- cor.test(~caps +  beta, method="spearman",
+          data=fig4df %>% filter(roi=="left_amygdala_functional_roi"))
+
+
+# right
+lmvhavr <- lm(caps ~ age + gender + EstimatedTotalIntraCranialVol +
+              fmrimovparam +
+              Right.Amygdala + beta,
+          data=fig4df %>% filter(roi=="right_amygdala_functional_roi"))
+
+# spearman rank
+lmvhavr.sp1 <- cor.test(~caps + Right.Amygdala, method="spearman",
+          data=fig4df %>% filter(roi=="right_amygdala_functional_roi"))
+
+lmvhavr.sp2 <- cor.test(~caps + beta, method="spearman",
+          data=fig4df %>% filter(roi=="right_amygdala_functional_roi"))
+
+
+# including interaction of neural x volume
+# left
+lmsvhavl <- lm(caps ~ age + gender + EstimatedTotalIntraCranialVol +
+              fmrimovparam +
+              Left.Amygdala * beta,
+          data=fig4df %>% filter(roi=="left_amygdala_functional_roi"))
+
+lmsvhavr <- lm(caps ~ age + gender + EstimatedTotalIntraCranialVol +
+              fmrimovparam +
+              Right.Amygdala * beta,
+          data=fig4df %>% filter(roi=="right_amygdala_functional_roi"))
+
+# correlation structure function
+lmvhav2r <- lm(beta ~ age + gender + EstimatedTotalIntraCranialVol + 
+    Right.Amygdala, 
+data=fig4df %>% filter(roi=="right_amygdala_functional_roi"))
+
+lmvhav2l <- lm(beta ~ age + gender + EstimatedTotalIntraCranialVol + 
+    Left.Amygdala, 
+data=fig4df %>% filter(roi=="left_amygdala_functional_roi"))
+
+# hybrid alpha v model, amygdala only
+#-----------------------------------------------------------------------
+# alpha
+fig4ls <- fig4(component="alphahav")
+fig4df <- fig4ls[[6]]
+
+# left amygdala
+lmhava1l <- lm(caps ~ age + gender + fmrimovparam + 
+  EstimatedTotalIntraCranialVol + Left.Amygdala + beta, 
+data=fig4df %>% filter(roi=="left_amygdala_functional_roi"))
+
+# right amygdala
+lmhava1r <- lm(caps ~ age + gender + fmrimovparam +
+  EstimatedTotalIntraCranialVol + Right.Amygdala + beta, 
+data=fig4df %>% filter(roi=="right_amygdala_functional_roi"))
+
+# delta 
+fig4ls <- fig4(component="deltahav")
+fig4df <- fig4ls[[6]]
+
+# left amygdala
+lmhava2l <- lm(caps ~ age + gender + fmrimovparam + 
+  EstimatedTotalIntraCranialVol + Left.Amygdala + beta, 
+data=fig4df %>% filter(roi=="left_amygdala_functional_roi"))
+
+# right amygdala
+lmhava2r <- lm(caps ~ age + gender + fmrimovparam +
+  EstimatedTotalIntraCranialVol + Right.Amygdala + beta, 
+data=fig4df %>% filter(roi=="right_amygdala_functional_roi"))
+
+# hybrid alpha v model, value regressor for all regions
+#-----------------------------------------------------------------------
+# run fig6 again to retrieve data frame
+fig6ls <- fig6()
+fig6df <- fig6ls[[2]] %>%
+  filter(component == "value") %>%
+  left_join(meds) %>%
+  left_join(scid)
+
+# mixed model of region x caps
+lmerfit <- lmer(betamu ~ region  * caps + (1|id),
+                data=fig6df %>% filter(region != "Amygdala"))
+avhav1 <- anova(lmerfit)
+
+# again, without women
+lmerfit <- lmer(betamu ~ region * caps + (1 |id),
+                data=fig6df %>% filter(region != "Amygdala") %>%
+                    filter(gender=="M"))
+avhav1.1 <- anova(lmerfit)
+
+# again, including covariates
+lmerfit <- lmer(betamu ~ meds + numofcomorb + region * caps + (1|id),
+                data=fig6df)
+avhav1.2 <- anova(lmerfit)
+
+
+# again, including covariates
+lmerfit <- lmer(betamu ~ bdi + region * caps + (1 |id),
+                data=fig6df)
+avhav1.3 <- anova(lmerfit)
+
+
+# again, including covariates
+lmerfit <- lmer(betamu ~ stais + region * caps + (1 |id),
+                data=fig6df)
+avhav1.4 <- anova(lmerfit)
+
+
+# again, including covariates
+lmerfit <- lmer(betamu ~ asi + region * caps + (1 |id),
+                data=fig6df)
+avhav1.5 <- anova(lmerfit)
+
+# test for additional brain-behavior relationships using prediction 
+# error weight and amygdala volume
+# the corresponding data frame is fig3df from figure 3
+#-----------------------------------------------------------------------
+# right amygdala
+lmfit6r <- lm(eta ~ age + gender + EstimatedTotalIntraCranialVol +
+               Right.Amygdala, data=fig3df)
+summary(lmfit6r)
+a6r <- anova(lmfit6r)
+
+# left amygdala
+lmfit6l <- lm(eta ~ age + gender + EstimatedTotalIntraCranialVol +
+               Left.Amygdala, data=fig3df)
+summary(lmfit6l)
+a6l <- anova(lmfit6l)
+
+# additionally test whether the individual correlations hold up
+# when using spearman rank correlation tests
+#-----------------------------------------------------------------------
+# value, striatum 
+rstat.vsp1 <- cor.test(~caps + betamu,
+                      data=fig6df %>% filter(region=="Striatum"))
+
+# alpha, striatum 
+rstat.asp1 <- cor.test(~caps + betamu,
+                       data=fig6ls[[2]] %>% filter(region=="Striatum",
+                                                   component=="alpha"))
+
+# alpha, dacc 
+rstat.asp2 <- cor.test(~caps + betamu,
+                       data=fig6ls[[2]] %>% filter(region=="dACC",
+                                                   component=="alpha"))
+
+# alpha, hippocampus 
+rstat.asp3 <- cor.test(~caps + betamu,
+                       data=fig6ls[[2]] %>% filter(region=="Hippocampus",
+                                                   component=="alpha"))
+#+END_SRC
+
+*** Text                                                        :ignore:
+To estimate parameter weights for the specific computations performed
+during associative threat learning \cite{Schiller2008a,Li2011,Atlas2016}
+and how they relate to PTSD symptom severity, we used a hybrid
+Rescorla-Wagner and Pearce-Hall model, which we have previously employed
+with the same task in participants from the general
+population.\cite{Schiller2008a,Li2011} The computational model was
+informed by the Pearce-Hall learning mechanism for associability-gated
+learning.\cite{Pearce1980} Like the classic Rescorla-Wagner
+model,\cite{Rescorla1972} the hybrid model updates the value of each cue
+upon each presentation of that cue, based on the discrepancy between the
+expected and obtained outcome, or the prediction error. The hybrid
+model, however, replaces the constant learning rate of the
+Rescorla-Wagner model by a dynamic associability
+parameter.\cite{Pearce1980} Associability reflects the attention that a
+cue receives based on how accurate it has predicted outcome in the
+past. Unreliable cues receive more attention (higher associability) as
+they are likely to be unreliable in the future; and since they are
+unreliable, they should be updated preferentially as new information
+becomes available \cite{Roesch2012} (see Online Supplementary Material
+for details and for simulated parameter recovery as well as model fits;
+Fig. [[figsimhybrid]] and Fig. [[figscrfithybrid]]).
+
+First, in order to verify the suitability of the model, we conducted
+model comparison between several versions of reinforcement learning
+models. Using Hierarchical Bayesian modeling we fitted three different
+versions of this hybrid model to the SCR data; all three outperformed
+the simpler Rescorla-Wagner model (Deviance Information Criterion, DIC:
+src_R[:session]{round(dics$dic[1], 2)}). In addition, the hybrid model
+with associability (\alpha) and an additional predictor for value ($V$)
+updating (DIC: src_R[:session]{round(dics$dic[5], 2)}
+{{{results(2630.37)}}}) outperformed the models with either value alone
+(DIC: src_R[:session]{round(dics$dic[3], 2)} {{{results(2678.75)}}}) or
+associability alone (DIC: src_R[:session]{round(dics$dic[4], 2)}
+{{{results(2661.6)}}}) and was thus the winning model
+(Fig. [[figroihybrid]]a). There was no evidence that an additional scaling
+parameter for the reversal stage (reflecting a different prediction
+error weight for the reversal stage) improved the model fit (DIC:
+src_R[:session]{round(dics$dic[6], 2)}). Notably, similar results were
+obtained when using maximum likelihood estimation as in a previous study
+(Li and colleagues;\cite{Li2011} see Online Supplementary Material for
+details; Fig. [[fighybridmle]]). These findings indicate that the recorded
+SCRs during reversal learning reflect value expectations modulated by
+cue specific attention. Next, we used this winning hybrid (\alpha + $V$)
+model to examine whether learning parameters that describe behavior and
+neural activity relate to PTSD symptom severity.
+
+** Symptomatic veterans assign higher weights to prediction errors
+To understand how the model computations relate to overt PTSD symptoms,
+we used the best-fit model parameters. In the winning hybrid model, the
+prediction error weight \eta, which can be seen as a learning rate for
+associability, is a quantity estimated for each participant from the
+SCR. The prediction error weight quantifies how much weight is assigned
+to wrong predictions when updating trial-by-trial associability. It is
+possible that more symptomatic combat veterans would be more sensitive
+to prediction errors, and will assign higher weights to them. Indeed, we
+found that higher prediction error weight was associated with higher
+CAPS symptoms (src_R[:session]{parse_lm(lmhave, 4)} {{{results(\beta =
+0.55\, /t/ (50) = 4.57\, /P/ < 0.001)}}}; Fig. [[figroihybrid]]b; note that
+this association held up when using a non-parametric rank correlation
+test that is less sensitive to outliers, see Online Supplementary
+Methods). This finding suggests that highly symptomatic combat veterans
+were more influenced by prediction errors, weighing them more strongly
+as they adjusted trial-by-trial attention to cues.
+
+** Symptomatic veterans show altered amygdala value computation
+*** Text                                                        :ignore:
+During the reversal task, the value assigned to each cue is continuously
+updated based on associability-gated prediction error. Mathematically,
+value in a current trial reflects the value in the previous trial plus
+prediction error multiplied by associability. Associability in each
+trial is updated by the weighted prediction error in the previous trial
+(see Online Supplementary Material for details). As reported above, the
+weighted prediction error was positively associated with PTSD
+symptoms. As the weighted prediction error shapes value, we next
+examined whether the neural tracking of value related to PTSD symptoms.
+
+We focused our neural investigation on the amygdala, given its role in
+associative learning,\cite{Schiller2008a,LeDoux2000} value
+encoding,\cite{Jin2015,Belova2007,Klavir2013,Genud2013} and evidence
+linking PTSD symptoms with heightened amygdala reactivity to emotionally
+negative stimuli.\cite{Admon2009,Neumeister2017} Since amygdala
+morphology has also been linked with stress-related
+psychopathology,\cite{Morey2012,Pietrzak2015} we examined whether
+amygdala neural computations and morphology are different manifestations
+of the same source problem (i.e., redundant) or whether they
+incrementally explain variance in PTSD symptoms.
+
+To address this, we calculated linear regression models including
+functional (value encoding based on the winning hybrid model) and
+structural indices for amygdala as predictors of the PTSD symptoms (for
+a similar analysis using the classic Rescorla-Wagner model, see
+Online Supplementary Material; Fig. [[figbayessim]], [[figscrfit]],
+[[figmultreg]]). To account for unspecific inter-subject variability,
+these models were adjusted for age, gender, head movement, and total
+intracranial volume (see also Online Supplementary Material). We found a
+structure-function relationship with CAPS in the right amygdala (Fig
+[[figmultreghyb]]a), where both volume
+(src_R[:session]{parse_lm(lmvhavr, 6)} {{{results(\beta = -0.52\, /t/
+(47) = -2.7\, /P/ = 0.01)}}}); Fig. [[figmultreghyb]]b) and neural
+activity (src_R[:session]{parse_lm(lmvhavr, 7)} {{{results(\beta =
+-0.29\, /t/ (47) = -2.02\, /P/ = 0.049)}}}; Fig. [[figmultreghyb]]c)
+independently predicted the total CAPS score. In the left amygdala, the
+effect of value-dependent activity remained significant when including
+amygdala volume in the same model (src_R[:session]{parse_lm(lmvhavl, 7)}
+{{{results(\beta = -0.34\, /t/ (47) = -2.34\, /P/ = 0.024)}}};
+Fig. [[figmultreghyb]]d), but no independent effect for volume emerged
+(src_R[:session]{parse_lm(lmvhavl, 6)} {{{results(\beta = -0.25\, /t/
+(47) = -1.27\, /P/ = 0.211)}}}).
+
+We verified that the findings were comparable when restricting the study
+sample to the male participants and when using non-parametric rank
+correlations (see Online Supplementary Material). We also confirmed that
+individual differences in right amygdala volumes did not impact the
+effect of neural activity on CAPS symptoms (see Online Supplementary
+Material and Fig. [[figamygex]]).
+
+To further characterize the relationship between structure
+and function we added the interaction term to the model and found that
+there was no evidence for a synergistic effect between these independent
+variables (right amygdala: src_R[:session]{parse_lm(lmsvhavr, 8)}
+{{{results(\beta = -0.95\, /t/ (46) = -0.88\, /P/ = 0.385)}}}; left
+amygdala: src_R[:session]{parse_lm(lmsvhavl, 8)} {{{results(\beta =
+-0.91\, /t/ (46) = -0.78\, /P/ = 0.437)}}}). However, the correlation
+between structure and function (adjusting for total head volume) was
+significant and negative (right amygdala:
+src_R[:session]{parse_lm(lmvhav2l, 5)} {{{results(\beta = -0.39\, /t/
+(49) = -2.11\, /P/ = 0.04)}}}; left amygdala:
+src_R[:session]{parse_lm(lmvhav2r, 5)} {{{results(\beta = -0.39\, /t/
+(49) = -2.13\, /P/ = 0.038)}}}). A possible explanation is a
+compensatory recruitment of amygdala neurons in veterans with smaller
+amygdala volumes, likely due to a stress-related gray matter
+reduction.\cite{Wrocklage2017}
+
+To fully characterize brain-behaviour relationship in relation to
+symptoms, we tested whether individual differences in prediction error
+weights were associated with differences in amygdala volume. We entered
+prediction error weight (\eta) as outcome measure into a linear
+regression and used amygdala volume as predictor, including additional
+regressors for age, gender, and total intracranial volume. We did not
+find evidence that right amygdala volume
+(src_R[:session]{parse_lm(lmfit6l, 5)} {{{results(\beta = -0.22\, /t/
+(49) = -1.14\, /P/ = 0.26)}}}) or left amygdala volume
+(src_R[:session]{parse_lm(lmfit6r, 5)} {{{results(\beta = -0.19\, /t/
+(49) = -1\, /P/ = 0.321)}}}) were associated with prediction error
+weight.
+
+** Additional components                                        :ignore:
+*** Code                                               :noexport:ignore:
+#+BEGIN_SRC R :exports none :results silent :session
+
+# compute group level results of associability
+#-----------------------------------------------------------------------
+# which model
+models <- c(
+    "glm-22-May-2018-computational-smoothed4mm-hybridalphav"   
+    )
+
+# which contrasts
+contrasts <- c(
+    "delta",
+    "alpha"
+    )
+
+groups <- c(
+  "VCC"
+  )
+
+# calculations: anova of region x component
+# for amygdala and striatum
+# cf. Li et al. 2011
+rois <- c(
+    "left_amygdala_functional_roi",
+    "right_amygdala_functional_roi",
+    "left_caudate_roi",
+    "right_caudate_roi")
+
+tmphavbetas4 <- havbetas4 %>%
+  left_join(compa %>% dplyr::select(id, group)) %>%
+  filter(
+    group %in% groups,
+    roi %in% rois,
+    model %in% models,
+    contrast %in% contrasts
+    )
+                                
+lmerfit1 <- lmer(beta ~ roi * contrast + (1|id), data=tmphavbetas4)
+ali2011 <- anova(lmerfit1)
+#+END_SRC
+
+*** Text                                                        :ignore:
+In addition to value computation, the winning hybrid model also captures
+prediction error and associability, both of which are associated with
+amygdala neural activity.\cite{Li2011,Roesch2012,Atlas2016} Since they
+are not strongly correlated in the hybrid model,\cite{Li2011,Raio2017}
+they can be assessed separately (see also Online Supplementary Material
+and Fig. [[fighybriddeltaalpha]]). We therefore computed a second GLM
+with trial-by-trial regressors for associability, shock occurrence, and
+prediction error, all of which were parametric modulators of cue offset,
+as this is the time point when prediction error and associability are
+computed. We expected that tracking of associability in the
+amygdala,\cite{Li2011,Roesch2012} reflecting the proposed
+attention-gating role of this brain regions, would be attenuated by PTSD
+symptoms. However, we did not find evidence for a relationship between
+amygdala neural activity and PTSD symptoms for either associability
+(left: src_R[:session]{parse_lm(lmhava1l, 7)} {{{results(\beta = -0.14\,
+/t/ (47) = -1.01\, /P/ = 0.316)}}}; right:
+src_R[:session]{parse_lm(lmhava1r, 7)} {{{results(\beta = -0.06\, /t/
+(47) = -0.43\, /P/ = 0.667)}}}) or prediction error (left:
+src_R[:session]{parse_lm(lmhava2l, 7)} {{{results(\beta = -0.03\, /t/
+(47) = -0.2\, /P/ = 0.839)}}}; right: src_R[:session]{parse_lm(lmhava2r,
+7)} {{{results(\beta = 0.04\, /t/ (47) = 0.28\, /P/ = 0.781)}}}),
+suggesting that amygdala value encoding contributes to the symptoms of
+PTSD, whereas associability and prediction error were less influential.
+
+All together, these findings show that lower neural tracking of value in
+the amygdala, in addition to smaller amygdala volumes, corresponded to
+higher PTSD symptom severity.
+
+** Additional brain regions tracking threat computations
+*** Code                                              :noexport:ignore:
+#+BEGIN_SRC R :exports none :results silent :session
+# calculate Li et al 2011 effect size
+# the f test of the interaction of region and component
+# was F(1, 64) = 5.64, P = 0.02 (Li et al. 2011, p.1251).
+# li2011_n <- 17
+# li2011_f <- 5.64
+# li2011_t <- sqrt(li2011_f)
+
+# d = t/sqrt(df)
+# li2011_d <- li2011_t/sqrt(li2011_n)
+
+# dissociation index in li 2011
+dili2011 <- li2011()
+
+# dissociation index in the current study
+di <- figs16()[[3]]
+
+# produce a figure to compare the indices
+figs17l <- figs17(dili2011, di)
+# ggsave(filename="../output/figures/comp_figs17.pdf", plot=figs17l[[1]],
+#width=5.3, height=6.99)
+
+#+END_SRC
+
+*** Text                                                    :ignore:
+The striatum, the, hippocampus, and the dorsal anterior cingulate (dACC)
+have also been implicated in the computations related to threat
+learning.\cite{Roesch2010,Li2011,Atlas2016} We extended our analysis to
+these brain regions and tested whether neural tracking of value,
+associability, and prediction error in these regions correlated with
+PTSD symptoms. Using a linear mixed model with brain region and CAPS as
+factors, and neural value computations as outcome, we found a main
+effect of CAPS (src_R[:session]{parse_fstat(avhav1, 2)} {{{results(/F/
+(1\, 52) = 5.49\, /P/ = 0.023)}}}) as well as an interaction of brain
+region and CAPS (src_R[:session]{parse_fstat(avhav1, 3)} {{{results(/F/
+(2\, 104) = 3.14\, /P/ = 0.047)}}}), driven by significant negative
+correlations between value tracking in the striatum
+(Fig. [[figroihybridrois]]). These results suggest that, similar to
+amygdala, lower value tracking in the striatum (but not hippocampus or
+dACC) relates to higher symptom severity.
+
+To test for a relationship between PTSD symptoms and neural tracking of
+associability and prediction error in these regions, all of which have
+been implicated in prediction error \cite{Schultz1997,O'Doherty2003} and
+assocability \cite{Roesch2010,Preuschoff2007,Behrens2007a,Atlas2016}
+encoding, we computed a linear mixed model with brain region, learning
+component and CAPS as factors, and neural activity as the dependent
+variable. We found an interaction of learning component and CAPS
+(src_R[:session]{parse_fstat(a2, 6)} {{{results(/F/ (1\, 208) = 20.43\,
+/P/ < 0.001)}}}), driven by negative correlations between neural
+tracking of associability and CAPS that were attenuated for prediction
+error in all three regions (Fig. [[figroihybridrois]]). We confirmed that
+these findings for value, associability, and prediction error
+computation were robust to the gender imbalance, clinical heterogeneity,
+and medication status (see Online Supplementary Material). We also
+verified that the correlations were present when testing for
+non-parametric rank correlations. These results indicate that the lower
+tracking of associability (and less so of prediction error) in the
+striatum, hippocampus and dACC relate to higher symptom severity.
+
+Finally, to investigate a dissociation of associability and prediction
+error in amygdala and striatum as reported in a previous
+study,\cite{Li2011} we tested for an interaction of region (amygdala,
+striatum) and learning component (associability, prediction error). To
+improve comparability between the current and the previous study, we ran
+this analysis only in veterans without a diagnosis of PTSD, and found no
+evidence for dissociation (src_R[:session]{parse_fstat(anovatab=ali2011,
+index=3)} {{{results(/F/ (3\, 174) = 0.48\, /P/ = 0.697)}}}). We also
+did not find evidence that the amygdala tracked associability in the
+current study in veterans without PTSD. 
+
+The absence of a dissociation that was found in previous
+study[[cite:Li2011]] merits an explanation. First, it is noteworthy that
+the current study does replicate the computational results of the
+previous study by Li and colleagues,[[cite:Li2011]] namely the
+superiority of the hybrid model over the Rescorla-Wagner model. On the
+neural level, the previous study found an interaction of region
+(amygdala, striatum) and learning component (associability, prediction
+error) that had a medium to large effect size
+(src_R[:session]{parse_di(dili2011)} {{{results(Cohen's /d/ = 0.66\, 95% CI: [0.12; 1.17]\, /P/ = 0.02)}}}). In the current study, we found that
+this interaction was not significant (src_R[:session]{parse_di(di)}
+{{{results(Cohen's /d/ = -0.13\, 95% CI: [-0.49; 0.23]\, /P/ =
+0.49)}}}). Rather, the striatum, but not amygdala, tracked associability
+in addition to tracking prediction error.
+
+Several factors could explain this result. First and foremost, the
+current study's population was exposed to combat trauma, therefore
+meeting Criterion A in the clinical assessment of PTSD symptoms, and in
+addition, was exposed to chronic stress associated with a deployment to
+combat zone. One may speculate that this traumatic stress (which has
+been shown to impact amygdala functioning
+[[cite:Etkin2007,Morey2012,Pietrzak2015]]) may be the root cause for a
+shift in tracking from the amygdala to the striatum as part of brain
+plasticity. Second, the current sample differed significantly from the
+previous sample in terms of gender ratio
+(src_R[:session]{parse_sexratios()} {{{results(M:F = 49:5 (current
+study) versus 9:8 (Li and colleagues)\, /P/ = 0.001)}}}) and age
+src_R[:session]{parse_ages()} ({{{results(20 - 52 (current study) versus
+18 - 31 (Li and colleagues))}}}). Finally, since we ran this
+analysis only in veterans without a diagnosis of PTSD (/N/ =
+src_R[:session]{length(compa$id[compa$group=="VCC"])}
+{{{results(30)}}}), a lack of statistical power might also have
+contributed to the non-replication. Together, this suggests that the
+absence of the dissociation found in Li and colleagues [[cite:Li2011]]
+may be due to a traumatic stress-related alteration in amygdala
+functioning together with a potential lack of statistical power.
+
+** Brain-behavior relationship
+*** Code                                             :noexport:ignore:
+#+BEGIN_SRC R :exports none :results silent :session
+figs15l <- figs15(dat=compa, betas=havbetas4)
+lmfits <- figs15l[[1]]
+lmf <- lmfits[[11]]
+dat <- figs15l[[2]]
+
+# mediation analysis
+figs19ls <- figs19(dat=compa, betas=havbetas4)
+
+# this is the data frame corresponding to the 11th contrast, 
+# i.e., right striatum with associability
+figs19tab <- figs19ls[[1]][[11]]
+
+#+END_SRC
+
+*** Text                                                       :ignore:
+Prediction error weights shape the computations of value and
+associability. The neural underpinnings of higher prediction error
+weights, observed in the behavior of individuals with more PTSD
+symptoms, may therefore relate to computations of value in the amygdala
+and the striatum, as well as to computations of associability in the
+striatum, dACC, and hippocampus. While PTSD symptoms correlated
+positively with prediction-error weights, however, they correlated
+negatively with the neural tracking of value and associability. To
+better understand these inverse relationships we conducted a mediation
+analysis.
+
+This analysis revealed that the correlation between prediction error
+weight and CAPS was partially mediated by the tracking of associability
+(but not prediction error) in the right striatum, as shown in the 4
+steps of a mediation analysis (Fig. [[figs18]]). We found that: (1)
+prediction error weight positively correlated with CAPS
+(src_R[:session]{parse_lm(lmf[[1]])} {{{results(\beta = 0.54\, /t/ (52) =
+4.62\, /P/ < 0.001)}}}); (2) prediction error weight negatively
+correlated with neural activity (src_R[:session]{parse_lm(lmf[[2]])}); that
+(3) neural activity negatively correlated with CAPS
+(src_R[:session]{parse_lm(lmf[[3]])} {{{results(\beta = -0.43\, /t/ (52) =
+-3.43\, /P/ = 0.001)}}}); and (4) prediction error weight and neural
+activity independently predicted CAPS (eta:
+src_R[:session]{parse_lm(lmf[[4]], 2)} {{{results(\beta = 0.45\, /t/ (51) =
+3.89\, /P/ < 0.001)}}}; neural activity: src_R[:session]{parse_lm(lmf[[4]],
+3)} {{{results(\beta = -0.3\, /t/ (51) = -2.55\, /P/ = 0.014)}}}).
+Finally, we tested whether the difference between paths c and c' was
+significantly different from zero. To maximize statistical power we used
+nonparametric bootstrapping with 5000 draws to derive an empirical null
+distribution. We found that the difference between the effect with the
+mediator present and the effect without it (paths c and c'; Fig. [[figs18]])
+was significant (src_R[:session]{parse_mediate(figs19tab)} {{{results(b
+= 138.01\, 95% CI: [31.55; 307.65]; /P/ = 0.012)}}}). This result
+indicates that our mediation model supports a significant partial
+mediation.
+
+This suggests that--at least for the right striatum and
+associability-- both higher prediction error weights and decreased
+neural tracking of associability are independently related to higher
+CAPS symptoms. Speculatively, then, the higher weight assigned to
+prediction errors might be a compensatory adjustment for the decreased
+neural tracking of associability. We did not find evidence that the
+neural tracking in any other region fully or partially mediated the
+relationship between prediction-error weights and CAPS.
+
+Together, these findings indicate that the effect of higher prediction
+error weights in individuals with higher CAPS scores was complemented by
+decreased striatal activity during associability computation.
+
+* Discussion 
+The current study found that even highly affected combat veterans were
+able to perform reversal learning when the SCRs were analyzed using
+conventional summary statistics. A more fine-grained computational
+analysis, however, revealed that subtle differences in latent learning
+components are at play: symptomatic veterans assigned more weight to
+prediction errors. An intuitive way of interpreting this result is in
+terms of attention. Highly affected individuals were more sensitive when
+their predictions about outcomes were wrong, and they exaggerated their
+adjustment to the cues that did not predict what they had expected. This
+behavior may be associated with the increased aversion to ambiguous
+losses, which was recently observed in PTSD in the context of economic
+decision making. Future research will need to determine the exact
+relationships between decision making under uncertainty, reinforcement
+learning, and post-trauma symptomatology.[[cite:Ruderman2016]]
+
+On the neural level, we found that the neural computations that were
+shaped by these altered prediction error weights contributed to the
+symptoms of PTSD: aversive value encoding in the amygdala and striatum,
+and associability computations in the striatum, dACC, and
+hippocampus. Our study further indicates that the right amygdala
+computations contribute to the symptomatology above and beyond the
+effects of smaller amygdala volumes,\cite{Pietrzak2015} suggesting
+additive effects of right amygdala volume and function. A model-based
+fMRI analysis such as the one used in this study can therefore not only
+indicate where in the brain a certain task-related activity emerges, but
+also which computations are likely performed.  
+
+The implication of these findings for PTSD becomes clear when the
+absence of behavioral differences (as indexed by the reversal index) is
+considered: as is well known from the behavioral (and to a lesser
+extent, from the fMRI) literature, no consistent and clinically relevant
+differences have emerged in threat conditioning
+paradigms,\cite{Duits2015} which is surprising given the proposed
+central role of threat conditioning in the pathophysiology of
+PTSD.\cite{Lissek2015} A possible explanation is that behavioral
+measures, for example SCR, are noisy, and can indeed be interpreted as
+noisy realizations of deterministic learning models.\cite{Daw2011} This
+suggests that the differences that are relevant for the disease may in
+fact be reflected by the latent parameters of the generative model
+rather than the noisy behavioral data.
+
+Although all veterans were combat-exposed, only some of them developed
+symptoms strong enough to warrant a classical (DSM-based) PTSD
+diagnosis. While our results do not allow us to draw causal inferences,
+our data do support the notion that veterans may develop more severe
+PTSD symptoms in response to altered neural computation of value and
+associability in several brain regions. Interestingly, the enhanced
+sensitivity to prediction errors was partially mediated by the striatal
+associability computations, suggesting that both increased
+prediction-error weight and decreased striatal tracking of associability
+independently contribute to PTSD symptoms. It is possible that the
+enhanced sensitivity to prediction errors might be the result or the
+by-product of the decreased neural associability tracking.
+
+All in all, these results suggest that exploiting the combined power of
+computational, morphological, and functional analytic tools enable us to
+relate latent markers of learning and morphological indices to overt
+symptoms, as specific targets for investigating trauma related
+psychopathology and its potential treatment.
+
+* Acknowledgments                                              
+The main source of funding for this work was provided by NIMH 105535 R01
+grant awarded to I. Harpaz-Rotem and D. Schiller (MPI) and funding
+provided by the Clinical Neurosciences Division of the National Center
+for PTSD. Additional support was provided by Klingenstein-Simons
+Fellowship Award in the Neurosciences to D. Schiller; The Brain and
+Behavior Research Foundation to I. Harpaz-Rotem; Chinese NSF grant
+31421003 to J. Li; and the Swiss National Science Foundation grant SNF
+161077 to P. Homan. The analytic work was supported in part through the
+computational resources and staff expertise provided by Scientific
+Computing at the Icahn School of Medicine at Mount Sinai.
+
+* Author contributions
+I.L., I.H.R. and D.S. designed the study. E.F., C.G., I.L. and
+I.H.R. collected the data. J.H. scored the data. P.H. analyzed the
+data. I.L., J.L, I.H.R. and D.S. contributed to data analysis. J.H.K.,
+R.P. and S.S. contributed to the interpretation of the results. P.H.,
+I.L., I.H.R. and D.S., wrote the first draft of the manuscript. All
+authors contributed to the final version of the manuscript.
+
+* Competing financial interests
+The authors report no competing interests.
+
+\clearpage
+
+* References                                                    :ignore:
+\bibliographystyle{nature}
+\bibliography{master}
+\clearpage
+
+* Tables and Figures
+** Table. Sample                                                :ignore:
+# go back to single space for Tables and Figures
+\singlespacing
+
+*** Code                                                        :ignore:
+#+NAME: srctabsamp
+#+HEADER: :exports results
+#+BEGIN_SRC R :colnames yes :session :results value :cache no
+
+# load med status and comorbidities
+scid <- read.csv("../output/tables/comp_scid.csv") %>%
+    filter(N>0) 
+    # replace dots by white space in diagnoses
+scid$SCID <- str_replace_all(scid$SCID, "[.]", " ")
+scid$SCID <- str_replace_all(scid$SCID, "S I", "SI")
+meds <- read.csv("../output/tables/comp_meds.csv")
+
+compam <- compa %>% dplyr::select(age, gender, caps, 
+                                  Education, bdi, stais, asi, ces) %>%
+gather(key=Characteristic, value=value, age, caps, ces, Education,
+       bdi, asi, stais) %>%
+group_by(Characteristic) %>%
+dplyr::summarize(
+      N=sum(!is.na(value)),
+      Mean=mean(value, na.rm=TRUE),
+      SD=sd(value, na.rm=TRUE),
+      Min=min(value, na.rm=TRUE),
+      Max=max(value, na.rm=TRUE)) %>%
+bind_rows(data.frame(Characteristic="Males", N=sum(compa$gender=="M"),
+                     Mean=NA, SD=NA, Min=NA,
+                     Max=NA)) %>%
+bind_rows(data.frame(Characteristic="Females",
+                     N=sum(compa$gender=="F"), Mean=NA, SD=NA, 
+                     Min=NA, Max=NA)) %>%
+bind_rows(data.frame(Characteristic="Medicated", 
+                     N=meds$N[2], Mean=NA, SD=NA,
+                     Min=NA, Max=NA)) %>%
+bind_rows(data.frame(Characteristic="/Comorbidities:/*",
+                     N=NA, Mean=NA, SD=NA,
+                     Min=NA, Max=NA)) %>%
+bind_rows(data.frame(
+                     #Characteristic=c("MDD", "Panic disorder", "GAD",
+                     #"Social phobia", "Anxiety disorder NOS",
+                     #"Alcohol abuse", "Cannabis abuse", 
+                     #"Bipolar II", "Cocaine abuse", "OCD", 
+                     #"Specific phobia", "Dysthymic disorder", 
+                     #"Adjustment disorder", "Opiate abusus"), 
+                     Characteristic=as.character(scid$SCID),
+                     ## N=sum(scid$scid %in% c("MDD", "Panic.Disorder",
+                     ##                        "Generalized.Anxiety",
+                     ##                       "Social.Phobia", 
+                     ##                       "Anxiety.Disorder.NOS", 
+                     ##                       "Alcohol",
+                     ##                       "Cannabis",
+                     ##                       "Bipolar.II.Disorder",
+                     ##                       "Cocaine",
+                     ##                       "Obsessive.Compulsive",
+                     ##                       "Specific.Phobia",
+                     ##                       "Dysthymic.Disorder",
+                     ##                       "Adjustment.Disorder",
+                     ##                       "Opiates")),
+                     N=scid$N,
+                     Mean=NA, SD=NA,
+                     Min=NA, Max=NA)) 
+
+
+compam[1:9, 2:6] <- round(compam[1:9, 2:6], 1)
+compam$Characteristic <- c("Age", "ASI", "BDI", "CAPS", "CES",
+                       "Education", "STAIS", "Males", "Females",
+                       "Medicated", "/Comorbidities:/",
+                       as.character(scid$SCID))
+
+compam$Characteristic <- factor(compam$Characteristic, levels=c("Males",
+                      "Females", "Age", "Education", "ASI", "BDI",
+                      "CAPS", "CES", "STAIS", "Medicated", 
+                      "/Comorbidities:/",
+                      as.character(scid$SCID)))
+
+compam <- compam %>% arrange(Characteristic)
+colnames(compam) <- c("*Characteristic*", "*/N/*", "*Mean*", "*SD*", 
+                      "*Min*", "*Max*") 
+
+# remove min max
+compam <- compam[, 1:4]
+
+# parse table to remove any nil
+compam <- parse_table(compam)
+return(compam)
+#+END_SRC
+
+*** Table                                                       :ignore:
+#+CAPTION: *Sample characteristics*. 
+#+CAPTION: Education was a categorical variable,
+#+CAPTION: defined as: 1, 8th grade or less; 2, some
+#+CAPTION: high school; 3, high school graduate or
+#+CAPTION: GED; 4, some college; 5, college graduate;
+#+CAPTION: 6, advanced graduate
+#+CAPTION: degree. /Abbreviations/: ASI, Anxiety
+#+CAPTION: Sensitivity Index; BDI, Beck Depression
+#+CAPTION: Inventory; CAPS, Clinician-Administered
+#+CAPTION: PTSD Scale; CES, combat exposure score;
+#+CAPTION: STAIS, State Anxiety subscale of the
+#+CAPTION: Spielberger State-Trait Anxiety Inventory;
+#+CAPTION: MDD, major depressive disorder;
+#+CAPTION: NOS, not otherwise specified;
+#+CAPTION: GMC, due to general medical condition;
+#+CAPTION: SI, substance induced;
+#+CAPTION: SD, standard deviation.
+#+ATTR_LATEX: :align lrrrrr 
+#+NAME: tabsamp
+#+RESULTS[3257aa26a415cd3f46bbbb094e46aa18291396ed]: srctabsamp
+| *Characteristic*             | */N/* | *Mean* | *SD* |
+|------------------------------+-------+--------+------|
+| Males                        |    49 |        |      |
+| Females                      |     5 |        |      |
+| Age                          |    54 |   32.8 |    8 |
+| Education                    |    51 |    3.7 |  1.2 |
+| ASI                          |    52 |   20.7 | 13.3 |
+| BDI                          |    53 |     16 | 13.3 |
+| CAPS                         |    54 |   39.2 |   32 |
+| CES                          |    51 |   16.8 |  6.5 |
+| STAIS                        |    49 |   40.8 | 13.7 |
+| Medicated                    |    18 |        |      |
+| /Comorbidities:/             |       |        |      |
+| MDD                          |    17 |        |      |
+| Past Alcohol abuse           |     7 |        |      |
+| Panic Disorder               |     5 |        |      |
+| Past Cannabis abuse          |     4 |        |      |
+| Generalized Anxiety          |     3 |        |      |
+| Social Phobia                |     3 |        |      |
+| Anxiety Disorder   NOS       |     2 |        |      |
+| Adjustment Disorder          |     1 |        |      |
+| Anxiety Disorder GMC         |     1 |        |      |
+| Dysthymic Disorder           |     1 |        |      |
+| Other DSM IV Axis I Disorder |     1 |        |      |
+| Past Cocaine abuse           |     1 |        |      |
+| Past Opiates abuse           |     1 |        |      |
+| Specific Phobia              |     1 |        |      |
+
+\clearpage
+
+** Figure. SCR                                                  :ignore:
+*** Code                                                        :ignore:
+#+HEADER: :exports none
+#+BEGIN_SRC R :results silent :session
+trv <- t.test(compa$revlearn)
+#+END_SRC
+
+*** Figure                                                      :ignore:
+#+NAME: cropfig_scrmerged 
+#+BEGIN_SRC sh :exports results :results silent
+  pdfcrop ../output/figures/comp_fig1.pdf
+#+END_SRC
+
+#+CAPTION: *a. Experimental design.* The
+#+CAPTION: experiment consisted of 69 trials and a
+#+CAPTION: reinforcement rate of 33%. Stimuli were
+#+CAPTION: presented for 4 s in two pseudorandomized
+#+CAPTION: orders, followed by an intertrial interval
+#+CAPTION: of 12 s. During acquisition, face A was
+#+CAPTION: paired with a shock in about 1/3 of the
+#+CAPTION: trials, and face B was not
+#+CAPTION: paired. Reversal started after 30 trials,
+#+CAPTION: without prior instructions or
+#+CAPTION: warnings. During reversal, face B was now
+#+CAPTION: paired with a shock in about 1/3 of the
+#+CAPTION: trials, while face A was not paired
+#+CAPTION: anymore. *b. Time course of threat reversal*
+#+CAPTION: *learning.* Mean normalized skin conductance
+#+CAPTION: responses (SCRs) with standard errors 
+#+CAPTION: (/N/ = src_R[:session]{nrow(compa)} {{{results(54)}}}). 
+#+CAPTION: Participants showed successful threat
+#+CAPTION: reversal, indicated by a significant
+#+CAPTION: interaction of stage by stimulus, i.e., a
+#+CAPTION: reversal index (subtracting stimulus
+#+CAPTION: discrimination [face A - face B] in
+#+CAPTION: reversal from stimulus discrimination in
+#+CAPTION: acquisition) with 95% confidence intervals
+#+CAPTION: that is significantly different from zero
+#+CAPTION: (src_R[:session]{parse_tstat(trv)} {{{results(/t/ (53) = 4.75\, /P/ < 0.001)}}})
+#+NAME: figtask
+#+ATTR_LATEX: :width 1.0\textwidth
+[[file:comp_fig1-crop.pdf]]
+
+\clearpage
+
+** Figure. Hybrid results                                       :ignore:
+#+BEGIN_SRC sh :exports results :results silent
+  pdfcrop ../output/figures/comp_fig3.pdf
+#+END_SRC
+#+ATTR_LATEX: :width 1.0\textwidth 
+#+CAPTION: *Computational model comparison and*
+#+CAPTION: *relationship to PTSD symptoms.*
+#+CAPTION: *a. All three versions of the hybrid*
+#+CAPTION: *model informed by the Pearce-Hall*
+#+CAPTION: *learning mechanism outperformed the*
+#+CAPTION: *simpler RW model.*
+#+CAPTION: In addition, the hybrid model with
+#+CAPTION: associability and value outperformed the
+#+CAPTION: models with either value only or
+#+CAPTION: associability only and was thus the
+#+CAPTION: winning model (indicated with an asterisk). 
+#+CAPTION: An extension of the RW or hybrid
+#+CAPTION: model with a scaling parameter \rho for
+#+CAPTION: the reversal stage, reflecting the the
+#+CAPTION: potential change of learning during the
+#+CAPTION: reversal stage, did not perform better
+#+CAPTION: than the hybrid model with \alpha and $V$,
+#+CAPTION: which we thus kept as the winning model.
+#+CAPTION: *b. Prediction error weight \eta predicts*
+#+CAPTION: *symptoms as assessed with the CAPS.* 
+#+CAPTION: Using the best-fit model parameters, we
+#+CAPTION: found that a higher prediction error
+#+CAPTION: weight \eta (which captures the learning
+#+CAPTION: rate for associability) predicted more
+#+CAPTION: CAPS symptoms. A partial correlation is
+#+CAPTION: shown, after adjustments for age and gender.
+#+CAPTION: RW, Rescorla-Wagner model;
+#+CAPTION: $V$, value;
+#+CAPTION: alpha, associability;
+#+CAPTION: delta, prediction error;
+#+CAPTION: CAPS, Clinician-Administered
+#+CAPTION: PTSD Scale; 
+#+CAPTION: adj., adjusted for all other parameters in the model;
+#+CAPTION: $^{\ast\ast\ast}$, /P/ < 0.001. 
+#+NAME: figroihybrid
+[[file:comp_fig3-crop.pdf]]
+
+\clearpage
+
+** Figure. Amygdala hybrid value                                :ignore:
+#+BEGIN_SRC sh :exports results :results silent
+  pdfcrop ../output/figures/comp_fig6.pdf
+#+END_SRC
+#+CAPTION: *Amygdala structure and value computation contribute*
+#+CAPTION: *to PTSD symptoms using a hybrid computational model* 
+#+CAPTION: *of associability and value encoding.*
+#+CAPTION: *a. Regions of interest*
+#+CAPTION: *used in the computational imaging*
+#+CAPTION: *analysis.* The amygdala (red) was defined
+#+CAPTION: functionally, using the contrast of conditioned
+#+CAPTION: stimulus vs. baseline. 
+#+CAPTION: *b-d. Amygdala volume and*
+#+CAPTION: *value-dependent neural activity*
+#+CAPTION: *independently contribute to PTSD*
+#+CAPTION: *symptoms.* Partial correlations are shown
+#+CAPTION: (/N/ = src_R[:session]{nrow(compa)} {{{results(54)}}}). 
+#+CAPTION: Right amygdala volume and
+#+CAPTION: activity as well as left amygdala activity
+#+CAPTION: correlated negatively with the PTSD
+#+CAPTION: symptoms as measured with the
+#+CAPTION: CAPS. 
+#+CAPTION: Thus, lower value tracking in the 
+#+CAPTION: amygdala and smaller amygdala volume 
+#+CAPTION: correspond to higher symptom severity.
+#+CAPTION: Regressions were adjusted for
+#+CAPTION: age, gender, head movement,
+#+CAPTION: and total intracranial volume. CAPS,
+#+CAPTION: Clinician-Administered PTSD Scale; adj.,
+#+CAPTION: adjusted; **, /P/ < 0.01; *, /P/ < 0.05.
+#+NAME: figmultreghyb
+#+ATTR_LATEX: :width 1.0\textwidth
+[[file:comp_fig6-crop.pdf]]
+
+\clearpage
+
+** Figure. Hybrid rois                                          :ignore:
+#+BEGIN_SRC sh :exports results :results silent
+  pdfcrop ../output/figures/comp_fig4.pdf
+#+END_SRC
+#+ATTR_LATEX: :width 1.0\textwidth 
+#+CAPTION: *Neural computations of value, associability and* 
+#+CAPTION: *prediction error*
+#+CAPTION: *and their relationship to CAPS symptoms for*
+#+CAPTION: *different regions of interest.*
+#+CAPTION: We found negative correlations for value 
+#+CAPTION: encoding as well as
+#+CAPTION: associability that were attenuated for
+#+CAPTION: prediction error.
+#+CAPTION: dACC, dorsal anterior cingulate cortex;
+#+CAPTION: alpha, associability;
+#+CAPTION: delta, prediction error;
+#+CAPTION: CAPS, Clinician-Administered
+#+CAPTION: PTSD Scale; 
+#+CAPTION: $^{\ast\ast}$, /P/ < 0.01; 
+#+CAPTION: $^{\ast}$, /P/ < 0.05; ~, /P/ < 0.1.
+#+NAME: figroihybridrois
+[[file:comp_fig4-crop.pdf]]
+
+\clearpage
+
+** Figure. Mediation                                            :ignore:
+*** Code                                            :noexport:ignore:
+*** Figure                                                   :ignore:
+#+BEGIN_SRC sh :exports results :results silent
+  pdfcrop ../lib/comp_figs18.pdf
+#+END_SRC
+#+ATTR_LATEX: :width 1.0\textwidth 
+#+CAPTION: *Associability-related neural activity in the right striatum*
+#+CAPTION: *partially mediates the relationship between prediction error*
+#+CAPTION: *weights and CAPS.*
+#+CAPTION: Standardized regression coefficients are shown. Both 
+#+CAPTION: prediction error weights and striatal neural tracking of 
+#+CAPTION: associability 
+#+CAPTION: independently predicted the PTSD symptoms as measured with
+#+CAPTION: the CAPS when included as predictors in the same model. 
+#+CAPTION: PE, prediction error; 
+#+CAPTION: CAPS, Clinician-Administered PTSD Scale;
+#+CAPTION: $^{\ast\ast\ast}$, /P/ < 0.001; 
+#+CAPTION: $^{\ast\ast}$, /P/ < 0.01; 
+#+CAPTION: $^{\ast}$, /P/ < 0.05. 
+#+NAME: figs18 
+[[file:comp_figs18-crop.pdf]]
+
+\clearpage
+
+* Online Supplementary Material 
+** Formatting                                                   :ignore:
+\doublespacing
+\makeatletter 
+\renewcommand{\thepage}{S\@arabic\c@page}  
+\renewcommand{\thefigure}{S\@arabic\c@figure}
+\renewcommand{\thetable}{S\@arabic\c@table}  
+\makeatother
+\setcounter{figure}{0}
+\setcounter{table}{0}
+\setcounter{page}{1}
+
+** Sample characteristics
+*** General description and excluded participants               
+**** Code                                                       :ignore:
+#+NAME: exdfm
+#+HEADER: :exports results 
+#+BEGIN_SRC R :results value :colnames yes :session :cache no 
+# summarize excluded subjects (without fmri data)
+exdfm <- exdf %>% gather(key=Characteristic, value=value, caps, bdi,
+                         stais, asi, ces, Education,
+                         age) %>%
+  group_by(Characteristic) %>%
+  dplyr::summarize(
+              N=sum(!is.na(value)),
+              Mean=mean(value, na.rm=TRUE),
+              SD=sd(value, na.rm=TRUE)
+              #SE=SD/sqrt(N),
+              #CI=SE * 1.96
+  ) %>%
+  bind_rows(data.frame(Characteristic=c("Males", "Females", 
+                                         "VCC", "VPTSD"),
+                       Mean=NA, SD=NA, 
+    N=c(sum(exdf$gender=="M"), sum(exdf$gender=="F"),
+        sum(exdf$group=="VCC"),
+        sum(exdf$group=="VPTSD"))))
+#    SE=NA, CI=NA))
+exdfm[1:9, -1] <- round(exdfm[1:9, -1], 2)
+
+exdfm$Characteristic <- c("Age", "ASI", "BDI", "CAPS", "CES",
+                       "Education", "STAIS", "Males", "Females",
+                       "VCC", "VPTSD")
+
+
+exdfm$Characteristic <- factor(exdfm$Characteristic, levels=c("Males",
+                      "Females", "VCC", "VPTSD", "Age", "Education", 
+                      "ASI", "BDI", "CAPS", "CES", "STAIS"))
+
+exdfm <- exdfm %>% arrange(Characteristic)
+
+cnames <- c("*Characteristic*", "*/N/*", "*Mean*", "*SD*")
+#            "*SE*", "*CI*")
+colnames(exdfm) <- cnames
+exdfm <- parse_table(exdfm)
+return(exdfm)
+#+END_SRC
+
+
+#+HEADER: :exports none
+#+BEGIN_SRC R :results silent :session
+# show similarity of included and excluded
+vars <- c("id", "age", "gender", "group", "caps", "bdi", "stais",
+          "asi", "ces", "Education")
+
+compall <- comp %>% filter(trial==1) %>%
+  dplyr::select(vars) %>% mutate(sample="included") %>% 
+  bind_rows(exdf %>% dplyr::select(vars) 
+                 %>% mutate(sample="excluded"))  %>%
+  gather(key=metric, value=value, age, caps, bdi, stais, asi, ces,
+         Education) 
+
+lmerfit <- lmer(value ~ sample * metric + (1 |id), data=compall)
+a9 <- anova(lmerfit)
+#+END_SRC
+
+**** Text                                                       :ignore:
+A total of 77 participants took part in the experiment. Due to problems
+with the SCR equipment or measurement problems during the functional
+scan, we did not obtain complete skin conductance and/or functional
+imaging data of 23 participants. These participants were similar
+compared to the included participants (see also Table [[tabexcl]]). This was
+confirmed by comparing age, CAPS, BDI, STAIS, ASI, CES, and education
+between excluded and included participants in a linear mixed model with
+the within subject factor metric (with the aforementioned variables as
+levels) and the between subject factor sample (levels: included,
+excluded) as well as a random intercept.  Importantly, the effects of
+sample (src_R[:session]{parse_fstat(a9, 1)} {{{results(/F/ (1\, 75.05) =
+0.05\, /P/ = 0.832)}}}) and the metric by sample interaction
+(src_R[:session]{parse_fstat(a9, 3)} {{{results(/F/ (6\, 434.7) = 0.13\,
+/P/ = 0.993)}}}) were both not significant.
+
+Thus, the full analysis was performed on 54 combat veterans (see Table
+[[tabsamp]] for complete demographic and psychopathology details). The
+sample partially overlaps (/N/ = 30) with the sample in a previous
+report.\cite{Pietrzak2015} The main reason to consider the partially
+overlapping structural data in the current study is that it increased
+the predictive validity of the right amygdala neural computations
+effect. In addition, since volume had already been shown to be
+predictive of CAPS symptoms,\cite{Pietrzak2015} the current study aimed
+to explicitly test whether the effect of neural computation goes beyond
+this effect of volume.
+
+The study was approved by the Yale University Human Investigating
+Committee and the Human Subjects Subcommittee of the VA Connecticut
+Healthcare System and compliance with all relevant ethical regulations
+was ensured throughout the study. All participants gave informed consent
+and were paid for their participation. Sample size was determined based
+on the assumption of a medium to large (r = 0.4) brain-behavior
+relationship between PTSD symptoms and BOLD activation. The necessary
+sample size was thus calculated as /N/ = 46 with 80% power and /N/ = 61
+with 90% power.
+
+*** Addressing the gender imbalance in the study sample
+**** Code                                                       :ignore:
+#+HEADER: :exports none
+#+BEGIN_SRC R :results silent :session
+# restrict sample to male participants
+
+# hybrid model, behav results
+#-----------------------------------------------------------------------
+havfits <- read.csv("../preproc/bayes/output/ptsd_bayes_stan_hybridalphav.csv")
+figdf <- comp %>% filter(trial==1, gender=="M") %>%
+  dplyr::select(id, age, gender, caps, group, bdi, stais, asi) %>%
+  left_join(havfits %>% filter(trial==1, param=="eta")) %>%
+  rename(eta=value, component=param)
+
+# correlation of symptoms and learning rate eta
+m.lmhave <- lm(caps ~ age + eta, data=figdf)
+
+# hybrid model
+#-----------------------------------------------------------------------
+figdf2 <- comp %>% filter(trial==1, gender=="M") %>%
+  dplyr::select(id, age, gender, caps, group, bdi, stais, asi) %>%
+  left_join(betas %>%
+            filter(model=="glm-22-May-2018-computational-smoothed4mm-hybridalphav",
+                   contrast %in% c("alpha", "delta"))) %>%
+  mutate(hemi=ifelse(grepl("left", roi), "left",
+              ifelse(grepl("right", roi), "right", "both")),
+         region=ifelse(roi=="left_amygdala_functional_roi" |
+                        roi=="right_amygdala_functional_roi",
+                        "Amygdala",
+                ifelse(roi=="left_hippocampus_roi" |
+                        roi=="right_hippocampus_roi",
+                        "Hippocampus",
+                ifelse(roi=="left_caudate_roi" |
+                        roi=="right_caudate_roi",
+                        "Striatum",
+                ifelse(roi=="dacc_roi",
+                       "dACC", "not needed"))))) %>%
+  rename(component=contrast) %>%
+  filter(region != "not needed") %>%
+  group_by(group, id, region, component) %>%
+  dplyr::summarize(betamu=sum(beta)/2) %>%
+  left_join(comp %>% filter(trial==1) %>%
+            dplyr::select(id, age, gender, caps, group,
+                          bdi, stais, asi)) %>%
+  filter(region != "Amygdala")
+
+m.lmerfit <- lmer(betamu ~ region * component * caps + (1 + region|id),
+                data=figdf2)
+m.a2 <- anova(m.lmerfit)
+
+#-----------------------------------------------------------------------
+# hybrid model, value regressor; focus on amygdala
+#-----------------------------------------------------------------------
+figdf <- comp %>% filter(trial==1, gender=="M") %>%
+  dplyr::select(id, age, gender, caps, group, bdi, stais, asi) %>%
+  left_join(betas %>%
+            filter(model=="glm-04-Jun-2018-computational-smoothed4mm-hybridalphav",
+                   contrast %in% c("value"))) %>%
+  rename(component=contrast) %>%
+  filter(roi %in% c("left_amygdala_functional_roi",
+                    "right_amygdala_functional_roi")) %>%
+  left_join(comp %>% filter(trial==1) %>%
+            dplyr::select(id, age, gender, caps, group, bdi, stais,
+                          asi, EstimatedTotalIntraCranialVol,
+                          fmrimovparam,
+                          Left.Amygdala, Right.Amygdala))
+
+# full structure function models
+# left
+m.lmvhavl <- lm(caps ~ age + EstimatedTotalIntraCranialVol +
+              fmrimovparam +
+              Left.Amygdala + beta,
+          data=figdf %>% filter(roi=="left_amygdala_functional_roi"))
+#summary(m.lmvhavl)
+
+# right
+m.lmvhavr <- lm(caps ~ age + EstimatedTotalIntraCranialVol +
+              fmrimovparam +
+              Right.Amygdala + beta,
+          data=figdf %>% filter(roi=="right_amygdala_functional_roi"))
+#summary(m.lmvhavr)
+
+
+
+#-----------------------------------------------------------------------
+# fmri related, hybrid alpha v model, value regressor all regions
+#-----------------------------------------------------------------------
+# summarize data and average across rois for the value regressor
+figdf <- comp %>% filter(trial==1, gender=="M") %>%
+  dplyr::select(id, age, gender, caps, group, bdi, stais, asi) %>%
+  left_join(betas %>% 
+            filter(model=="glm-04-Jun-2018-computational-smoothed4mm-hybridalphav",
+                   contrast %in% c("value"))) %>%
+  mutate(hemi=ifelse(grepl("left", roi), "left",
+              ifelse(grepl("right", roi), "right", "both")),
+         region=ifelse(roi=="left_amygdala_functional_roi" |
+                        roi=="right_amygdala_functional_roi",
+                        "Amygdala",
+                ifelse(roi=="left_hippocampus_roi" |
+                        roi=="right_hippocampus_roi",
+                        "Hippocampus",
+                ifelse(roi=="left_caudate_roi" |
+                        roi=="right_caudate_roi",
+                        "Striatum",
+                ifelse(roi=="dacc_roi",
+                       "dACC", "not needed"))))) %>%
+  rename(component=contrast) %>%
+  filter(region != "not needed") %>%
+  group_by(group, id, region, component) %>%
+  dplyr::summarize(betamu=sum(beta)/2) %>%
+  left_join(comp %>% filter(trial==1) %>%
+            dplyr::select(id, age, gender, caps, group, bdi, stais, 
+                          fmrimovparam, EstimatedTotalIntraCranialVol,
+                          Left.Amygdala, Right.Amygdala, asi)) %>%
+  filter(region != "Amygdala")
+
+
+# mixed model of region x component x caps
+library(lmerTest)
+m.lmerfit <- lmer(betamu ~ region  * caps + (1 |id), data=figdf)
+m.avhav1 <- anova(m.lmerfit)
+
+#-----------------------------------------------------------------------
+
+
+#+END_SRC
+
+**** Text                                                       :ignore:
+Since there was a considerable gender imbalance in our study sample
+(src_R[:session]{sum(compa$gender=="M")} {{{results(49)}}} of the
+src_R[:session]{nrow(compa)} {{{results(54)}}} participants were male),
+we verified that all of the main results of the current study hold up
+when restricting the study sample to only male
+participants. Specifically, the effect of higher prediction error weight
+predicting more CAPS symptoms remained significant
+(src_R[:session]{parse_lm(m.lmhave, 3)} {{{results(\beta = 0.51\, /t/
+(46) = 4.03\, /P/ < 0.001)}}}). In addition, the effect of value
+computation for the right amygdala changed only minimally
+(src_R[:session]{parse_lm(m.lmvhavr, 6)} {{{results(\beta = -0.27\, /t/
+(43) = -1.78\, /P/ = 0.083)}}}) and remained significant for the left
+amygdala (src_R[:session]{parse_lm(m.lmvhavl, 6)} {{{results(\beta =
+-0.36\, /t/ (43) = -2.38\, /P/ = 0.022)}}}); and the volume effect for
+the right amygdala remained significant
+(src_R[:session]{parse_lm(m.lmvhavr, 5)} {{{results(\beta = -0.5\, /t/
+(43) = -2.54\, /P/ = 0.015)}}}).
+
+In addition, the interaction of region and CAPS remained significant for
+value computation (src_R[:session]{parse_fstat(m.avhav1, 3)}
+{{{results(/F/ (3\, 141) = 3.85\, /P/ = 0.011)}}}), and the interaction
+of learning component by CAPS remained significant for associability and
+prediction error computation (src_R[:session]{parse_fstat(m.a2, 6)}
+{{{results(/F/ (1\, 282) = 11.01\, /P/ = 0.001)}}}).
+
+Thus, the heterogeneity introduced by gender appears to be negligible in
+this study, which is why we decided to keep the female participants in
+the sample to maximize statistical power of the otherwise relatively
+small study and precision of the estimated effects.
+
+*** Addressing the clinical heterogeneity of the study sample
+**** Code                                                       :ignore:
+#+HEADER: :exports none
+#+BEGIN_SRC R :results silent :session
+
+# compare revlearn for different splits
+# 1., group
+compa$highcaps <- "no"
+compa$highcaps[compa$caps > median(compa$caps)] <- "yes"
+
+compa$extrcaps <- "no"
+compa$extrcaps[compa$caps > 70] <- "extrhigh"
+compa$extrcaps[compa$caps <= 20] <- "extrlow"
+
+nt2_vptsd <- length(compa$id[compa$highcaps=="yes"])
+nt2_vcc <- length(compa$id[compa$highcaps=="no"])
+
+nt3_vptsd <- length(compa$id[compa$extrcaps=="extrhigh"])
+nt3_vcc <- length(compa$id[compa$extrcaps=="extrlow"])
+
+t1 <- t.test(revlearn ~ group, data=compa)
+t2 <- t.test(revlearn ~ highcaps, data=compa)
+t3 <- t.test(revlearn ~ extrcaps, data=compa %>% filter(extrcaps != "no"))
+
+
+
+# read meds
+meds <- read.csv("../preproc/clinical/ptsd_clinical_medstatus.csv") 
+
+# read vhav fits
+vhavfits <- read.csv("../preproc/bayes/output/ptsd_bayes_stan_rw.csv") %>%
+    filter(trial==1, param=="alpha") %>%
+    dplyr::select(id, value) %>%
+    rename(alpharw=value)
+
+# read scid
+scidm <- read.csv("../preproc/clinical/ptsd_clinical_scid.csv") %>%
+  right_join(comp %>% filter(trial==1)) %>%
+  filter(!scid=="PTSD") %>%
+  group_by(scid) %>%
+  dplyr::summarize(dx=sum(value==3, na.rm=TRUE)) %>%
+  arrange(-dx)
+
+# create table
+sciddf <- data.frame(SCID=scidm$scid[scidm$dx>0&scidm$scid!="PTSD"], 
+                     N=scidm$dx[scidm$dx>0&scidm$scid!="PTSD"])
+# write to disk
+write.csv(sciddf, "../output/tables/comp_scid.csv", row.names=FALSE)
+colnames(sciddf) <- c("*SCID*", "*/N/*")
+
+# create table of med status
+medsdf <- meds %>% filter(!is.na(meds)) %>% 
+  mutate(meds=factor(meds)) %>%
+  inner_join(comp %>% filter(trial==1) %>% dplyr::select(id)) %>%
+  group_by(meds) %>%
+  dplyr::summarize(N=sum(!is.na(meds)))
+
+# write to disk
+write.csv(medsdf, "../output/tables/comp_meds.csv", row.names=FALSE)
+
+# scid 
+scid <- read.csv("../preproc/clinical/ptsd_clinical_scid.csv") %>%
+  mutate(hascomorb=ifelse(value==3&scid!="PTSD", 1, 0)) %>%
+  group_by(id) %>%
+  dplyr::summarize(numofcomorb=sum(hascomorb, na.rm=TRUE)) %>%
+  mutate(hascomorb=ifelse(numofcomorb > 0, TRUE, FALSE))
+
+# merge with data
+figdf <- comp %>% left_join(scid) %>% filter(trial==1) %>%
+  left_join(oldbetas) %>%
+  left_join(meds) %>%
+  left_join(vhavfits)
+
+
+# merge with betas
+tmpbetas <- read.csv("../preproc/fmri/betas/ptsd_fmri_4mm_rw_betas.csv")
+
+figdfl <- figdf %>%
+    left_join(tmpbetas %>%
+              filter(contrast=="value",
+                     roi=="left_amygdala_functional_roi"))
+
+figdfr <- figdf %>%
+    left_join(tmpbetas %>%
+              filter(contrast=="value",
+                     roi=="right_amygdala_functional_roi"))
+
+
+
+
+# test correlations
+lm6.0 <- lm(numofcomorb ~ meds, data=figdf)
+
+# run regresion models to test for shared variance
+# of neural and structural findings with med status and comorbidities
+lm6.1 <- lm(beta ~ numofcomorb + meds, data=figdfr)
+lm6.2 <- lm(Right.Amygdala ~ numofcomorb + meds, data=figdfr)
+lm6.3 <- lm(beta ~ numofcomorb + meds, data=figdfl)
+lm6.4 <- lm(Left.Amygdala ~ numofcomorb + meds, data=figdfl)
+
+
+lm5 <- lm(bdi ~ age + gender + fmrimovparam +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Right.Amygdala +
+          beta,
+        data=figdfr)
+
+lm6 <- lm(stais ~ age + gender + fmrimovparam +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Right.Amygdala +
+          beta,
+        data=figdfr)
+
+lm7 <- lm(asi ~ age + gender + fmrimovparam +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Right.Amygdala +
+          beta,
+        data=figdfr)
+
+lm8 <- lm(bdi ~ age + gender + fmrimovparam +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Left.Amygdala +
+          beta,
+        data=figdfl)
+
+lm9 <- lm(stais ~ age + gender + fmrimovparam +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Left.Amygdala +
+          beta,
+        data=figdfl)
+
+lm10 <- lm(asi ~ age + gender + fmrimovparam +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Left.Amygdala +
+          beta,
+        data=figdfl)
+
+
+
+lm5.1 <- lm(caps ~ age + gender + fmrimovparam +
+          bdi +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Right.Amygdala +
+          beta,
+        data=figdfr)
+
+lm5.2 <- lm(caps ~ age + gender + fmrimovparam +
+          stais +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Right.Amygdala +
+          beta,
+        data=figdfr)
+
+lm5.3 <- lm(caps ~ age + gender + fmrimovparam +
+          asi +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Right.Amygdala +
+          beta,
+        data=figdfr)
+
+lm5.4 <- lm(caps ~ age + gender + fmrimovparam +
+          bdi +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Left.Amygdala +
+          beta,
+        data=figdfl)
+
+lm5.5 <- lm(caps ~ age + gender + fmrimovparam +
+          stais +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Left.Amygdala +
+          beta,
+        data=figdfl)
+
+lm5.6 <- lm(caps ~ age + gender + fmrimovparam +
+          asi +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Left.Amygdala +
+          beta,
+        data=figdfl)
+#+END_SRC
+
+**** Text                                                       :ignore:
+We recruited veterans with a wide range of psychopathology, from
+completely healthy to pronounced PTSD, which can be seen from the
+distributions of PTSD (CAPS), depression (BDI), and anxiety symptoms
+(STAIS, ASI; Fig. [[fighist]]). Nevertheless, the reversal learning index
+did not differ significantly between combat veterans with and without
+PTSD (src_R[:session]{parse_tstat(t1)}), between combats with high
+versus low PTSD (median split; src_R[:session]{parse_tstat(t2)}); or
+between combat veterans with CAPS values on the extreme lower (CAPS
+$\leq$ 20; /N/ = src_R[:session]{nt3_vcc} {{{results(19)}}}) or extreme
+higher end (CAPS $\geq$ 65; /N/ = src_R[:session]{nt3_vptsd}
+{{{results(10)}}}; src_R[:session]{parse_tstat(t3)} {{{results(/t/
+(10.73) = 0.48\, /P/ = 0.638)}}}).
+
+To confirm that our main results were not significantly influenced by
+the clinical heterogeneity in our sample, we adjusted our models testing
+for neural computations of value, associability, and prediction error
+for comorbidities and medication status. For value computation, the
+region by CAPS interaction remained significant when the model was
+adjusted for the number of comorbidities and medication status
+(src_R[:session]{parse_fstat(avhav1.2, 5)} {{{results(/F/ (3\, 153) =
+3.51\, /P/ = 0.017)}}}). In addition, the effect was also robust to the
+adjustment for depression (BDI; src_R[:session]{parse_fstat(avhav1.3,
+4)} {{{results(/F/ (3\, 153) = 3.73\, /P/ = 0.013)}}}, state anxiety
+(STAIS; src_R[:session]{parse_fstat(avhav1.4, 4)} {{{results(/F/
+(3\, 141) = 3.57\, /P/ = 0.016)}}}), and anxiety sensitivity (ASI;
+src_R[:session]{parse_fstat(avhav1.5, 4)} {{{results(/F/ (3\, 150) = 3\,
+/P/ = 0.032)}}}).
+
+Similarly, for associability and prediction error computation, the
+learning component by CAPS interaction remained significant when the
+model was adjusted for the number of comorbidities and medication status
+(src_R[:session]{parse_fstat(a2.2, 8)} {{{results(/F/ (1\, 357) = 6.86\,
+/P/ = 0.009)}}}). In addition, the effect was also robust to the
+adjustment for depression (BDI; src_R[:session]{parse_fstat(a2.3, 7)}
+{{{results(/F/ (3\, 153) = 4.66\, /P/ = 0.004)}}}, state anxiety (STAIS;
+src_R[:session]{parse_fstat(a2.4, 7)} {{{results(/F/ (1\, 329) = 7.72\,
+/P/ = 0.006)}}}), and anxiety sensitivity (ASI;
+src_R[:session]{parse_fstat(a2.5, 7)} {{{results(/F/ (1\, 350) = 7.55\,
+/P/ = 0.006)}}}).
+
+Finally, we also verified that the correlations we report in the main
+manuscript held up when using non-parametric rank correlation tests.
+Specifically, we confirmed this for the correlation between prediction
+error weight and CAPS (src_R[:session]{parse_rstat(lmhave.sp,
+method="spearman")} {{{results(rho = 0.52\, /P/ < 0.001)}}}), for the
+correlation between left amygdala neural value tracking and CAPS
+(src_R[:session]{parse_rstat(lmvhavl.sp1, method="spearman")}), the
+correlation between right amygdala volume and CAPS
+(src_R[:session]{parse_rstat(lmvhavr.sp1, method="spearman")}
+{{{results(rho = -0.37\, /P/ = 0.005)}}}), the correlation between right
+amygdala neural value tracking and CAPS
+(src_R[:session]{parse_rstat(lmvhavr.sp2, method="spearman")}
+{{{results(rho = -0.27\, /P/ = 0.046)}}}), the correlation between
+striatum neural value tracking and CAPS
+(src_R[:session]{parse_rstat(rstat.vsp1, method="spearman")}
+{{{results(rho = -0.35\, /P/ = 0.009)}}}), the correlation between
+striatum neural associability tracking and CAPS
+(src_R[:session]{parse_rstat(rstat.asp1, method="spearman")}
+{{{results(rho = -0.37\, /P/ = 0.006)}}}), the correlation between dACC
+neural associability tracking and CAPS
+(src_R[:session]{parse_rstat(rstat.asp2, method="spearman")}
+{{{results(rho = -0.29\, /P/ = 0.031)}}}), and the correlation between
+hippocampus neural associability tracking and CAPS
+(src_R[:session]{parse_rstat(rstat.asp3, method="spearman")}
+{{{results(rho = -0.29\, /P/ = 0.033)}}}).
+
+Together, these results suggest that the findings of this study were
+robust to the clinical heterogeneity of the study sample, and that
+the correlations we report were robust to outliers.
+
+** Materials and Methods
+** Study design
+The study consisted of a threat reversal learning experiment during
+functional magnetic resonance imaging (fMRI) on a single day. Threat
+learning was measured with galvanic skin conductance response (SCR),
+structural magnetic resonance images were acquired in the same MRI
+session, immediately before the task. Participants were randomly
+assigned to one of two trial orders (see below). Due to the study
+design, data collection and analysis were not performed blind to the
+conditions of the experiments.
+
+** Screening procedures
+Psychopathology was assessed using the Structural Clinical Interview for
+DSM-IV (SCID), the gold standard Clinician-Administered PTSD Scale
+(CAPS) for PTSD diagnosis. Exclusion criteria were mental retardation,
+psychosis, bipolar disorder, substance dependency (life time), drug
+abuse in the past year, alcohol abuse in the past 60 days, neurological
+disorders, learning disabilities, ADHD, use of antipsychotic, hypnotic
+or sedative medications, less than 30 days stable dose of
+antidepressants. Participants currently below PTSD clinical cutoff
+(i.e., presence of at least one criterion B symptom, at least three
+criterion C symptoms, at least two criterion D symptoms, as well as
+criteria A, E, and F met) with a history of PTSD diagnosis were also
+excluded (remitted PTSD). We additionally measured the combat exposure
+score (CES), depression with the Beck Depression Inventory (BDI),
+anxiety sensitivity with the Anxiety Sensitivity Index (ASI), and state
+anxiety with the State-Trait Anxiety Inventory (STAIS). Participants
+underwent breathalyzer and urine tests before the experiment to further
+validate substance use beyond the SCID.
+
+** Experimental task
+We used the same task as in a previous study on threat reversal in
+healthy participants,\cite{Schiller2008a} i.e., a threat
+discrimination and reversal task, with delay conditioning and partial
+reinforcement of about 33% (Fig. 1a). Participants were told that they
+would see visual images on a screen while receiving shocks. The level of
+the shocks was determined by participants before the
+experiment. Participants inside the MRI were instructed to pay attention
+to the screen and try to figure out the relationship between the stimuli
+and the shocks. Importantly, we did not mention the two stages or the
+reversal of contingencies. The conditioned stimuli were two mildly angry
+male faces from the Ekman series.
+
+*** Stimuli and apparatus
+The US was a mild electric shock to the foot (200 ms duration, 50
+pulses/s). The stimuli were presented for 4 s, with a 12 s intertrial
+interval (ITI) in which a fixation point was presented (Fig. 1a). During
+acquisition, one face (face A) was paired with the US on one-third of
+the trials, while the other (face B) was never paired with the
+US. During reversal, these contingencies switched, and face B was now
+paired with the US on approximately one-third of the trials and face A
+was not paired with the US. The order of the different trial types was
+pseudorandomized (no consecutive reinforced trials and no more than two
+consecutive trials of each kind), and the designation of faces into
+'face A' and 'face B' was counterbalanced across participants. During
+acquisition, there were 12 presentations of each of the faces,
+intermixed with an additional 6 presentations of face A that
+co-terminated with the US. Reversal immediately followed acquisition,
+and the transition between the stages was unsignaled. This stage
+consisted of 16 presentations of each of the faces, intermixed with 7
+additional presentations of face B that co-terminated with the US. We
+considered the first trial in which face B co-terminated with the US as
+the beginning of the reversal stage (Fig. 1a).
+
+** Physiological data acquisition and analysis
+Mild shocks were delivered through a stimulating bar electrode attached
+to the participant's right ankle. A Biopac stimulator charged by a
+stabilized current was used, with cable leads that were magnetically
+shielded and grounded through an RF filter. The participants were asked
+to set the level of the shock themselves using a work-up procedure
+before scanning. In this procedure, a participant was first given a very
+mild shock (20 V, 200 ms, 50 pulses/s), which was gradually increased to
+a level the participant indicated as uncomfortable, but not painful
+(with a maximum level of 70 V). Skin conductance was assessed with
+shielded Ag-AgCl electrodes, filled with standard NaCl electrolyte gel,
+and attached to the middle phalanges of the second and third fingers of
+the left hand. The electrode cables were grounded through an RF filter
+panel. The skin conductance signal was amplified and recorded with a
+BIOPAC Systems skin conductance module connected to a computer.  
+
+Data were continuously recorded at a rate of 200 samples per second. An
+off-line analysis of the analog skin conductance waveforms was conducted
+with AcqKnowledge software (BIOPAC Systems). The level of skin
+conductance response was assessed for each trial as the base-to-peak
+amplitude difference in skin conductance of the largest deflection (in
+microsiemens; \mu S) in the 0.5-4.5 s latency window after stimulus
+onset. The minimal response criterion was 0.02 \mu S. Responses below
+this criterion were encoded as zero. The raw skin conductance scores
+were square root transformed to normalize the distributions, and scaled
+according to each participant's average response to the US.
+
+*** Statistical analysis
+We averaged the learning effects (face A minus face B) across trials by
+stage (acquisition, reversal) for each participant and calculated a
+threat reversal index by subtracting the learning effect of reversal
+from the learning effect of acquisition. To assess whether participants
+showed successful threat reversal, we tested whether the reversal index
+was significantly different from zero with a one sample t-test. The
+threshold for this analysis was set at /P/ < 0.05, two-tailed. The
+relationship between latent learning parameters (see below) and PTSD
+symptomatology was estimated with a linear regression model. Data
+distribution was assumed to be normal but this was not formally
+tested. However, individual data points are shown in scatter plots
+throughout the manuscript.
+
+** Computational modeling
+Following classic computational learning
+theory,\cite{Daw2011} we assumed a deterministic learning
+model and a probabilistic observation model to describe the generation
+of our data. The deterministic learning model describes the dynamics of
+how internal variables gate learning, while the observation model
+describes how the internal variables are realized in observed data.
+
+*** Pearce-Hall learning model
+Unlike the Rescorla-Wagner model (see below) which treats the learning
+rate as constant, the Pearce-Hall model for associability-gated learning
+substitutes associability for the constant learning rate. Thus, such a
+model incorporates prediction error-driven value updating into an
+associability model, resulting in the hybrid model:
+#
+\begin{align}
+\delta_{n} &= r_{n} - V_{n}(x_{n}) \\
+V_{n+1}(x_{n}) &= V_{n}(x_{n}) + \kappa \alpha_{n}(x_{n}) \delta_{n} \\
+\alpha_{n+1}(x_{n}) &= \eta |\delta_{n}| + (1 - \eta) \alpha_{n}(x_{n}).
+\end{align}
+#
+Here, $x_{n}$ is the conditioned stimulus on trial $n$ (CS+ or CS-) and
+$r_{n}$ as the US delivered (1 for US, 0 for no US). The punishment
+prediction error $\delta_{n}$ measures the difference between the
+expected and predicted shock on trial $n$. The associability \alpha
+for the value update is a variable. The value for the CS not observed on
+trial $n$ remains unchanged. Since associability of trial n depends on
+absolute prediction errors from past but not current trials,
+associability \alpha_{n}(x_{n}) and prediction error \delta_{n} are
+relatively uncorrelated.
+ 
+To derive the best fits for this model, we assumed that $V_{0} = 0.5$,
+reflecting the assumption that getting a shock or not was equally likely
+for the first trial. We compared the fit of different versions of the
+hybrid model to the SCR data by optimizing the free parameters of each
+model. We assumed the likelihood of each trial's SCR $S_{n}$ to be an
+independent and identically distributed (i.i.d.) Gaussian distribution
+around a mean determined by value, associability, or the combination of
+both value and associability as predicted by the model on that trial
+(plus a constant term):
+\begin{align}
+S_{n} &\sim \text{Normal}(\beta_{0} + \beta_{1} V_{n}(x_{n}), \sigma) \\
+S_{n} &\sim \text{Normal}(\beta_{0} + \beta_{1} \alpha_{n}(x_{n}), \sigma) \\
+S_{n} &\sim \text{Normal}(\beta_{0} + \beta_{1} V_{n}(x_{n}) +
+  \beta_{2} \alpha_{n}(x_{n}), \sigma).
+\end{align}
+As can be seen, these correspond to linear regressions of value or
+associability, or the combination of both, to the SCR. We tested all
+three possible combinations (Equations 1-3; Hybrid ($V$); Hybrid (\alpha);
+Hybrid (\alpha + $V$)), all in separate fits of all free parameters.
+
+Using Hierarchical Bayesian modeling, we first verified that we could
+recover simulated parameters of initial associability (\alpha_{0}),
+\kappa, and the associability learning rate \eta (Fig. [[figsimhybrid]]). We
+also ruled out that an extended model with an additional scaling
+parameter that captured a change of the prediction error weight for the
+reversal stage would fit the data better (Fig. [[figroihybrid]]a)
+
+*** Rescorla-Wagner learning model
+**** RW methods                                                 :ignore:
+Although we found that a hybrid model of associability and value
+computation outperformed a simpler Rescorla-Wagner (RW) model, we were
+also interested in how a basic RW model could explain value
+computation in the amygdala. The RW model is the standard
+model of error-driven predictive learning. It assumes that the expected
+value ($V$) for each trial is updated according to the learning rate and
+the prediction error:
+\begin{equation}
+\begin{aligned}
+V_{n+1}(x_{n}) &= V_{n}(x_{n}) + \alpha \delta_{n} \\
+\delta_{n} &= r_{n} - V_{n}(x_{n})
+\end{aligned}
+\end{equation}
+Here, $x_{n}$ is the conditioned stimulus on trial $n$ (face A or face
+B) and $r_{n}$ as the US delivered (1 for US, 0 for no US). The
+punishment prediction error $\delta_{n}$ measures the difference between
+the expected and predicted shock on trial $n$. The learning rate
+\alpha for the value update is a constant free parameter.  The
+expected value for the conditioned stimulus absent on trial $n$ remains
+unchanged. To derive the best fits for the Rescorla-Wagner model, we
+assumed that $V_{0} = 0.5$, reflecting the assumption that getting a
+shock or not was equally likely for the first trial. 
+
+**** RW results                                                 :ignore:
+***** Code                                                      :ignore:
+#+HEADER: :exports none
+#+BEGIN_SRC R :results silent :session
+
+# amygdala beta with 4mm and func roi
+tmpbetas <- read.csv("../preproc/fmri/betas/ptsd_fmri_4mm_rw_betas.csv")
+rwfits <- read.csv("../preproc/bayes/output/ptsd_bayes_stan_rw.csv")
+figdf <- comp %>% filter(trial==1) %>%
+  left_join(rwfits %>% filter(trial==1, param=="alpha") %>%
+            dplyr::select(id, value, param) %>%
+            spread(key=param, value=value) %>% rename(alpharw=alpha)) %>%
+  left_join(tmpbetas) 
+
+lm1r <- lm(caps ~ age + gender + fmrimovparam +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Right.Amygdala +
+          beta,
+         data=figdf %>% filter(roi=="right_amygdala_functional_roi",
+                               contrast=="value"))
+
+lm1l <- lm(caps ~ age + gender + fmrimovparam +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Left.Amygdala +
+          beta,
+         data=figdf %>% filter(roi=="left_amygdala_functional_roi",
+                               contrast=="value"))
+
+
+lm2r <- lm(caps ~ age + gender + fmrimovparam +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Right.Amygdala *
+          beta,
+         data=figdf %>% filter(roi=="right_amygdala_functional_roi",
+                               contrast=="value"))
+
+lm2l <- lm(caps ~ age + gender + fmrimovparam +
+          alpharw +
+          EstimatedTotalIntraCranialVol +
+          Left.Amygdala *
+          beta,
+         data=figdf %>% filter(roi=="left_amygdala_functional_roi",
+                               contrast=="value"))
+
+
+
+# correlation
+rstat1r <- cor.test(~beta + Right.Amygdala,
+                    data=figdf %>%
+                        filter(roi=="right_amygdala_functional_roi",
+                               contrast=="value"))
+
+lm3r <- lm(alpharw ~ EstimatedTotalIntraCranialVol +
+               Right.Amygdala,
+           data=figdf %>% filter(roi=="right_amygdala_functional_roi",
+                                 contrast=="value"))
+
+rstat1l <- cor.test(~beta + Left.Amygdala,
+                    data=figdf %>%
+                        filter(roi=="left_amygdala_functional_roi",
+                               contrast=="value"))
+
+
+
+lm3l <- lm(alpharw ~ EstimatedTotalIntraCranialVol +
+               Left.Amygdala,
+           data=figdf %>% filter(roi=="left_amygdala_functional_roi",
+                                 contrast=="value"))
+
+
+#+END_SRC
+
+***** Text                                                      :ignore:
+We hypothesized that model-based value computation would be correlated
+with amygdala activity, and that this correlation would be more negative
+for individuals with higher levels of PTSD symptoms. After verifying
+that simulated parameters could be recovered with the Hierarchical
+Bayesian approach used in this study (Fig. [[figbayessim]]) and that the
+model indeed fitted the recorded SCRs (Fig. [[figscrfit]]), we calculated
+linear regression models including functional (value encoding) and
+structural indices for amygdala as predictors of the PTSD symptoms. To
+account for unspecific inter-subject variability, these models were
+adjusted for learning rate, age, gender, head movement, and total
+intracranial volume. For the right amygdala (Fig. [[figmultreg]]a), we found
+that volume predicted CAPS symptoms (src_R[:session]{parse_lm(lm1r, 7)}
+{{{results(\beta = -0.49\, /t/ (46) = -2.59\, /P/ = 0.013)}}});
+Fig. [[figmultreg]]b) while value-related neural activity as a predictor did
+not reach statistical significance (src_R[:session]{parse_lm(lm1r, 8)}
+{{{results(\beta = -0.28\, /t/ (46) = -2\, /P/ = 0.052)}}};
+Fig. [[figmultreg]]c). In the left amygdala, the effect of value-dependent
+activity remained significant when including amygdala volume in the same
+model (src_R[:session]{parse_lm(lm1l, 8)} {{{results(\beta = -0.35\, /t/
+(46) = -2.42\, /P/ = 0.02)}}}; Fig. [[figmultreg]]d), but no independent
+effect for volume emerged (src_R[:session]{parse_lm(lm1l, 7)}
+{{{results(\beta = -0.2\, /t/ (46) = -1.04\, /P/ = 0.303)}}}).
+
+**** Region of interest definition of the amygdala              :ignore:
+***** Code                                                      :ignore:
+#+HEADER: :exports none
+#+BEGIN_SRC R :results silent :session 
+#-----------------------------------------------------------------------
+# old (=original) rw model with 8 mm smoothing kernel 
+#-----------------------------------------------------------------------
+tmpbetas <- read.csv("../preproc/fmri/betas/ptsd_fmri_8mm_rw_betas.csv")
+figdftmp <- comp %>%
+  left_join(tmpbetas %>% filter(contrast=="value",
+                             roi=="right_amygdala_indiv_roi")) %>%
+  filter(trial==1)
+lm4.0 <- lm(caps ~ age + gender + 
+          EstimatedTotalIntraCranialVol +
+          Right.Amygdala +
+          beta,
+        data=figdftmp)
+#-----------------------------------------------------------------------
+        
+#-----------------------------------------------------------------------
+# new rw model with 4 mm smoothing kernel 
+#-----------------------------------------------------------------------
+tmpbetas <- read.csv("../preproc/fmri/betas/ptsd_fmri_4mm_rw_betas.csv")
+figdftmp <- comp %>%
+  left_join(tmpbetas %>% filter(contrast=="value",
+                             roi=="right_amygdala_indiv_roi")) %>%
+  filter(trial==1)
+
+lm4.1 <- lm(caps ~ age + gender + 
+          EstimatedTotalIntraCranialVol +
+          Right.Amygdala +
+          beta,
+        data=figdftmp)
+        
+#-----------------------------------------------------------------------
+# winning hybrid model with 4 mm smoothing kernel, value regressor
+#-----------------------------------------------------------------------
+tmpbetas <- read.csv("../preproc/fmri/betas/ptsd_fmri_4mm_vhav_betas.csv")
+figdftmp <- comp %>%
+  left_join(tmpbetas %>% filter(contrast=="value",
+                             roi=="right_amygdala_indiv_roi")) %>%
+  filter(trial==1)
+
+lm4.2 <- lm(caps ~ age + gender + 
+          EstimatedTotalIntraCranialVol +
+          Right.Amygdala +
+          beta,
+        data=figdftmp)
+#-----------------------------------------------------------------------
+#+END_SRC
+
+***** Text                                                      :ignore:
+We also confirmed that the results were robust to the specific ROI
+definition of the amygdala and that individual differences in right
+amygdala volumes did not impact the effect of neural activity on CAPS
+symptoms: We repeated our analysis of right amygdala value computation
+using the winning hybrid (\alpha + $V$) model. We used the individual
+amygdala segmentations as computed by Freesurfer as masks for the region
+of interest analysis of the right amygdala in SPM. After running the
+recon-all pipeline in Freesurfer, we converted and binarized the
+subcortical segmentation of each individual to NIfTI format. We then
+applied the individual normalization parameters calculated by SPM during
+the SPM preprocessing pipeline to warp the Freesurfer segmentation to
+the MNI space. A figure (Fig. [[figamygex]]) shows two illustrative
+participants with individual amygdala masks (estimated in Freesurfer and
+indicated in red) projected on to their T1-weighted brain anatomy in
+SPM.
+
+Given that we found an effect of volume for the right amygdala, we thus
+extracted the mean beta estimates of these individual right amygdala
+masks and entered the estimates in a multivariable regression model,
+using CAPS as the dependent measure and the beta estimates together with
+amygdala volume as predictors, adjusting for age, gender, and
+intracranial volume. We found a similar effect for the neural activity
+compared to the original findings in the right amygdala
+(src_R[:session]{parse_lm(lm4.2, 6)} {{{results(\beta = -0.3\, /t/ (48)
+= -2.07\, /P/ = 0.044)}}}), suggesting that the BOLD effects were
+correctly estimated.
+
+To further characterize the relationship between structure and function
+we added the interaction term to the model and found that there was no
+evidence for a synergistic effect between these independent variables
+(right amygdala: src_R[:session]{parse_lm(lm2r, 9)} {{{results(\beta =
+-0.7\, /t/ (45) = -0.71\, /P/ = 0.482)}}}; left amygdala:
+src_R[:session]{parse_lm(lm2l, 9)} {{{results(\beta = -0.02\, /t/ (45) =
+-0.02\, /P/ = 0.988)}}}). Moreover, the correlation between structure
+and function was not significant (right amygdala:
+src_R[:session]{parse_rstat(rstat1r)} {{{results(/r/ (52) = 0.05\, /P/ =
+0.742)}}}; left amygdala: src_R[:session]{parse_rstat(rstat1l)}
+{{{results(/r/ (52) = 0.04\, /P/ = 0.797)}}}). Further, a mediation
+analysis with amygdala volume as a mediator of the association between
+value activity and CAPS symptoms did not show evidence for full or
+partial mediation; instead, inclusion of amygdala volume did in fact
+improve the predictive validity of neural activity. A possible
+explanation is a compensatory recruitment of amygdala neurons in
+veterans with smaller amygdala volumes, likely due to a stress-related
+gray matter reduction.\cite{Wrocklage2017}
+
+We also tested a potential difference in learning rates between
+acquisition and reversal and additionally tested an extended version of
+the Rescorla-Wagner (RW) model. We added an additional scaling parameter
+$\rho$, which captures the change in the learning rate during the
+reversal stage. For acquisition, we thus used the classical RW model:
+#
+\begin{align}
+V_{n+1}(x_{n}) &= V_{n}(x_{n}) + \alpha \delta_{n} \\
+\delta_{n} &= r_{n} - V_{n}(x_{n}),
+\end{align}
+#
+and the extended model for reversal:
+#
+\begin{align}
+V_{n+1}(x_{n}) &= V_{n}(x_{n}) + \rho \alpha \delta_{n} \\
+\delta_{n} &= r_{n} - V_{n}(x_{n}),
+\end{align}
+#
+where $\rho$ is the scaling parameter. We performed a model comparison
+between the two models, computing the deviance information criterion
+(DIC) which captures the goodness of fit of a Bayesian Hierarchical
+model, with lower values meaning better fits.
+\cite{Spiegelhalter2002} Notably, we found that the simpler
+model provides a better fit to the data (extended model: DIC =
+src_R[:session]{round(dics$dic[2], 2)} {{{results(6223.11)}}}; simpler
+model: DIC = src_R[:session]{round(dics$dic[1], 2)}
+{{{results(6003.91)}}}). 
+
+Finally, we investigated whether fitting $V_{0}$, the initial value, as
+an additional free parameter would improve the model fit, and found that
+the resulting DIC was higher than the one from the original simpler
+model; we thus kept the simpler model with $V_{0}$ fixed at 0.5.
+
+*** Hierarchical Bayesian model fitting 
+**** Bayesian modeling versus maximum likelihood estimation
+***** Text                                                      :ignore:
+We used Hierarchical Bayesian analysis (HBA) to obtain estimates of the
+free parameters in our computational models. The advantage of HBA
+compared to Maximum Likelihood Estimation (MLE) is that individual
+differences are accounted for but information across individuals is
+pooled so that individual estimates are pulled toward the population
+mean (an effect sometimes referred to as shrinkage \cite{Gelman2013}).
+
+In MLE, on the other hand, point estimates are obtained that maximize
+the likelihood of the data for each individual separately.
+\cite{Myung2003} Individual ML estimates, however, may suffer from
+noise, and may be unreliable when faced with an insufficient amount of
+data.\cite{Ahn2017} In addition, there is no guarantee that non-linear
+optimization algorithms commonly used (such as fmincon in MATLAB) will
+provide a set of parameter values that uniquely maximize the
+log-likelihood; indeed, premature stops of the algorithm are common,
+which provide a local (and thus sub-optimal) instead of a global maximum
+of the likelihood function. \cite{Myung2003} Group-level analysis of
+MLE, which treats a group as single subject and estimates a single set
+of parameters for a whole group of individuals, is commonly used to
+generate fMRI regressors for model based analyses as it is supposed to
+generate more reliable estimates needed for fMRI,\cite{Daw2011} but it
+inevitably ignores individual differences and does not allow for group
+comparisons.
+
+**** Hybrid model comparison using maximum likelihood estimation
+***** Code                                                      :ignore:
+#+HEADER: :exports none
+#+BEGIN_SRC R :results silent :session
+# compute model mle model fits
+mlealm <- compa %>% left_join(oldmle) %>%
+  gather(key=model, value=loglik, 
+     minllrwscrsqrtrc,
+     minllhvscrsqrtrc,
+     minllhascrsqrtrc,
+     minllhavscrsqrtrc) %>%
+  mutate(k=rep(c(3, 4, 3, 3), each=54),
+         n=56,
+         bic=2*loglik + k * log(n)) %>%
+  group_by(model) %>%
+  dplyr::summarize(sumloglik=sum(loglik),
+                   sumbic=sum(bic)) %>%
+  mutate(modelname=c("Hybrid (alpha)", "Hybrid (alpha + V)",
+                     "Hybrid (V)", "RW")) 
+
+
+# calculate llr tests
+# comparisons: 
+# - RW vs H(v): df=2
+# - RW vs H(a + v): df=3
+# - H(v) vs H(a + v): df=1
+# - H(a) vs H(a + v): df=1
+chisq <- c(
+  2 * (mlealm$sumloglik[4] - mlealm$sumloglik[3]),
+  2 * (mlealm$sumloglik[4] - mlealm$sumloglik[2]),
+  2 * (mlealm$sumloglik[3] - mlealm$sumloglik[2]),
+  2 * (mlealm$sumloglik[1] - mlealm$sumloglik[2])
+)
+
+# degrees of freedom
+# note the number of parameters: they have
+# to be multiplied by the sample size!
+def <- c(2, 3, 1, 1) * nrow(compa)
+
+# how do model fits interact with ptsd symptoms?
+# note: n = number of non reinforced trials
+mleal <- compa %>% left_join(oldmle) %>%
+  gather(key=model, value=loglik, 
+     minllhascrsqrtrc,
+     minllhavscrsqrtrc,
+     minllhvscrsqrtrc,
+     minllrwscrsqrtrc) %>%
+  mutate(modelname=rep(mlealm$modelname, each=nrow(compa))) %>%
+  mutate(k=rep(c(3, 4, 3, 3), each=nrow(compa)),
+         n=56, 
+         bic=2*loglik + k * log(n))
+
+bics <- mleal %>% group_by(modelname) %>%
+  dplyr::summarize(bic=sum(bic))
+#-----------------------------------------------------------------------
+#+END_SRC
+
+***** Text                                                      :ignore:
+Nevertheless, to replicate the model comparison reported in Li and
+colleagues more directly, \cite{Li2011} we also performed a model
+comparison of the hybrid models using Maximum Likelihood Estimation
+(MLE) as in the aforementioned study, and ranked all three hybrid models
+as well as the RW model according to their Bayesian Information
+Criterion (BIC). Consistent with the results in Li and
+colleagues,\cite{Li2011} the model with the lowest BIC was the hybrid
+(\alpha + $V$) model, outperforming the other hybrid models as well as
+the RW model (Fig. [[fighybridmle]]a). More specifically, direct comparisons
+using likelihood ratio tests revealed that the Hybrid ($V$) model
+outperformed the RW model (src_R[:session]{parse_chi(chisq[1], def[1])}
+{{{results(\chi^{2} = 408.11\, df=108\, /P/ = < 0.001)}}}), and the
+Hybrid (\alpha + $V$) outperformed the RW model
+(src_R[:session]{parse_chi(chisq[2], def[2])} {{{results(\chi^{2} =
+877.61\, df=162\, /P/ = < 0.001)}}}), the Hybrid ($V$) model
+(src_R[:session]{parse_chi(chisq[3], def[3])} {{{results(\chi^{2} =
+469.5\, df=54\, /P/ = < 0.001)}}}), and the Hybrid (\alpha) model
+(src_R[:session]{parse_chi(chisq[4], def[4])} {{{results(\chi^{2} =
+348.54\, df=54\, /P/ = < 0.001)}}}).
+
+We did not find evidence that the individual MLE model fits interacted
+with the PTSD symptomatology; the correlation between model parameters
+and symptoms was essentially flat for each of the 4 models
+(Fig. [[fighybridmle]]b).
+
+**** Details on the Bayesian modeling procedure
+***** Text                                                      :ignore:
+To perform HBA, we used the probabilistic programming language Stan
+2.15.1 (Stan Development Team, 2014), which makes use of Markov chain
+Monte Carlo (MCMC) sampling algorithms termed Hamiltonian Monte Carlo
+(HMC). Hamiltonian Monte Carlo provides an efficient sampling algorithm
+even for multilevel models and highly correlated parameters.
+\cite{Gelman2015}
+
+For the RW model, individual parameters were assumed to be drawn from
+group-level normal distributions. Normal and half-Cauchy distributions
+were used for the priors of the group-level means and standard
+deviations, respectively.\cite{Ahn2014,Gelman2006a} We used
+weakly informative priors \cite{Gelman2013} to minimize the
+influence of those priors on the posterior distributions with our
+relatively small sample size. As the learning rate \alpha is bounded
+between 0 and 1, we used the inverse probit transformation (the
+cumulative distribution function of a unit normal distribution) to
+convert unconstrained values into this range. The mathematical
+relationship between the probability density function (pdf) and the
+cumulative density function (cdf) of the unit normal distribution
+guarantees for this transformation that the converted prior will be
+uniformly distributed between 0 and 1. Stan provides a fast
+approximation of the inverse probit transformation (the =Phi_approx=
+function) to achieve this. The learning rate was thus declared as
+follows:
+\begin{align*}
+\mu_{\alpha'} &\sim \text{Normal}(0, 1) \\
+\sigma_{\alpha'} &\sim \text{half-Cauchy}(0, 5) \\ 
+\alpha' &\sim \text{Normal}(\mu_{\alpha'}, \sigma_{\alpha'})\\
+\alpha &= \text{Probit}^{-1}(\alpha')\\
+\end{align*}
+Where $\mu_{\alpha'}$ and $\sigma_{\alpha'}$ are hyper-parameters that
+dictate the distribution of $\alpha'$ and sequentially $\alpha$.
+
+A total of 2000 samples were drawn after 1000 burn-in samples for each
+of 4 chains (resulting in a total of 8000 samples). To assess the
+convergence of the chains for each parameter, we used the Gelman-Rubin
+test \cite{Gelman1992} which calculates an $\hat{R}$
+statistic, with $\hat{R}$ values close to 1.00 indicating that the MCMC
+chains have converged to the target distributions.
+
+Importantly, the $\hat{R}$ values obtained for all model parameters were
+1.00, and visual inspection of MCMC chains confirmed the mixing of MCMC
+samples. In addition, effective sample sizes (ESS) of model parameters,
+which are associated with autocorrelation and mixing of MCMC chains
+(with a smaller ESS indicating higher autocorrelation), were typically
+greater than 1000 (out of 8000 total samples). The minimum ESS of
+hyper-parameters was 592. Visual inspection of the parameters with
+smaller ESS confirmed their convergence to the target distributions.
+
+For the hybrid models, priors of individual parameters were again
+assumed to be drawn from group-level normal distributions, but normal
+and half-normal distributions were used for the priors of the
+group-level means and standard deviations, respectively.
+
+*** Parameter recovery tests 
+To further verify the plausibility of our model, we used simulated data
+to test whether simulated parameters could be recovered (recovery
+tests). We generated true parameter values, simulated synthetic
+behavioral data based on the parameters, and recovered their parameter
+values using the HBA described in the previous section. Results
+confirmed that the model was successful at recovering the simulated
+parameters (Fig. [[figbayessim]] and Fig. [[figsimhybrid]]).
+
+*** Statistical analysis
+For the RW model, we used the individual posterior means of the learning
+rate to calculate the trial-wise expected value for each
+participant. These values were used as parametric modulators in the
+model-based fMRI analysis. For the hybrid model, trial-wise expected
+value, associability, and prediction error were used as parametric
+modulators in the model-based fMRI analysis (see below).
+
+** Structural magnetic resonance imaging and analysis
+A Siemens Trio TIM 3T and 12-channel receiver array head coil were used
+for data acquisition. High-resolution T1-weighted anatomical images ($1
+\times 1 \times 1$ mm^{3}) were acquired with an MPRAGE pulse sequence
+(voxel size $1 \times 1 \times 1$ mm; repetition time $= 2.5$ s; echo
+time $= 2.77$ ms; flip angle $= 7\textdegree$; $256 \times 256$ matrix,
+$176$ sagittal slices of $1$ mm).
+
+Blinded to the clinical status, image processing and segmentation were
+conducted using the automated Freesurfer reconall pipeline
+(http://surfer.nmr.mgh.harvard.edu). Freesurfer transforms brains from
+native space to standard space to perform subcortical segmentation, and
+then transforms them back to native space to extract individual amygdala
+volumes. We thus used those extracted measures of amygdala volume for
+each participant and restricted the analysis to this a priori defined
+region of interest. Amygdala volume measures were then used as
+predictors in multivariable linear regressions (see below).  
+
+Notably, excessive head motion was found to be associated with reduced
+estimates of gray matter thickness and volume compared to age- and
+gender-matched samples and consequently with inflated effect
+sizes.\cite{Savalia2017} Following a recent suggestion that
+participants' head movement during functional imaging sequence may
+provide a proxy for head movement during the structural sequence (where
+no head movement is recorded), we calculated the total head movement in
+mm during fMRI for each participant and included this scalar as a
+covariate in the statistical analysis.\cite{Savalia2017} Importantly,
+this covariate was used as a proxy measure for head movement during the
+anatomical session. The movement during the fMRI session was regressed
+out in the fMRI design matrix (see above). Note that the exclusion of
+this additional regressor in the multivariable regression did not alter
+the main results of our analysis.
+
+** Functional magnetic resonance imaging and analysis
+Functional images were acquired using a single-shot gradient echo EPI
+sequence (TR $= 2000$ ms; TE $= 25$ ms; FOV $= 192$ cm; flip angle $=
+75\textdegree$; bandwidth $= 4340$ Hz/px; echo spacing $= 0.29$ ms).
+Forty contiguous oblique-axial slices ($3 \times 3 \times 3$ mm voxels)
+parallel to the AC-PC line were obtained.
+
+Analysis of the imaging data were conducted using SPM 12
+(http://fil.ion.ac.ak/spm12). After discarding the first eight volumes,
+native-space images were realigned, slice-time corrected, and
+co-registered to each subject's structural scan. Structural image
+preprocessing included segmentation, bias correction, and spatial
+normalization; these normalization parameters were also used to
+normalize the functional images. Finally, functional images were
+smoothed with a Gaussian kernel (4 mm FWHM).
+
+*** Model-based fMRI analysis
+**** Code                                             :noexport:ignore:
+#+HEADER: :exports none
+#+BEGIN_SRC R :results silent :session
+
+# collinearity of fmri regressors
+#-----------------------------------------------------------------------
+# which rois
+rois <- c(
+    "left_amygdala_functional_roi",
+    "right_amygdala_functional_roi",
+    "left_caudate_roi",
+    "right_caudate_roi",
+    "left_hippocampus_roi",
+    "right_hippocampus_roi",
+    "dacc_roi")
+
+# which model
+models <- c(
+    "glm-09-Sep-2018-computational-smoothed4mm-hybridalphav"   
+    )
+
+# which contrasts
+contrasts <- c(
+    "delta",
+    "value",
+    "alpha"
+    )
+
+groups <- c(
+  "VCC",
+  "VPTSD"
+  )
+
+havfits <- read.csv(
+  "../preproc/bayes/output/ptsd_bayes_stan_hybridalphav.csv") %>%
+  left_join(comp %>% dplyr::select(id, group, trial, stim, age, gender,
+                                    caps, stais, asi)) %>%
+  filter(group %in% groups) %>%
+  mutate(shock=ifelse(grepl("US", stim), 1, 0),
+         stimnum=ifelse(grepl("CSminus", stim), 1, 2)) %>%
+  arrange(id, param, trial)
+    
+# value betas
+#-----------------------------------------------------------------------
+figdf <- comp %>% filter(trial==1) %>%
+  dplyr::select(id, age, gender, caps, group, bdi, stais, asi) %>%
+  left_join(betas %>%
+            filter(model=="glm-04-Jun-2018-computational-smoothed4mm-hybridalphav",
+                   contrast %in% c("value", "shock"))) %>%
+  rename(component=contrast) %>%
+  filter(roi %in% c("left_amygdala_functional_roi",
+                    "right_amygdala_functional_roi")) %>%
+  left_join(comp %>% filter(trial==1) %>%
+            dplyr::select(id, age, gender, caps, group, bdi, stais,
+                          asi, EstimatedTotalIntraCranialVol,
+                          fmrimovparam,
+                          Left.Amygdala, Right.Amygdala)) %>%
+  spread(key=component, value=beta)
+
+# full structure function models with shock included
+#-----------------------------------------------------------------------
+# left
+lmvshavl <- lm(caps ~ age + gender + EstimatedTotalIntraCranialVol +
+              fmrimovparam +
+              Left.Amygdala + shock + value,
+          data=figdf %>% filter(roi=="left_amygdala_functional_roi"))
+#summary(lmvshavl)
+
+# right
+lmvshavr <- lm(caps ~ age + gender + EstimatedTotalIntraCranialVol +
+              fmrimovparam +
+              Right.Amygdala + shock + value,
+          data=figdf %>% filter(roi=="right_amygdala_functional_roi"))
+#summary(lmvshavr)
+#+END_SRC
+
+**** Text                                                       :ignore:
+We conducted a computational analysis using the Pearce-Hall learning
+model, with the fMRI regressors derived from the fits to the SCR
+data. Cue onset and offset were modeled as two discrete events, and each
+expected value ($V$) regressor was included as a parametric modulator of
+the stimulus onset event. In addition, the occurrence of a shock (0 for
+trials with no shock, 1 for trials with a shock) and prediction error
+were modeled as parametric modulators of cue offset. The parametric
+regressor of interest was expected value, which modulated cue onset,
+while the regressors for shock outcome and prediction error were
+included in the design matrix (modulating cue offset) but are not
+considered in this study.
+
+Six regressors modeling affine head-motion parameters were also included
+in the GLM. All events were convolved with a canonical gamma-variate
+hemodynamic response function (HRF). The contrast of interest was the
+correlation of expected value $V$, corresponding to the expectation of a
+shock on each trial, with the BOLD response in the brain. We thus
+computed images of this contrast for each participant and used the
+contrast images as input for the ROI-based analyses. Our ROI-based
+analysis focused on the amygdala. We defined the amygdala ROIs
+functionally, using an independent contrast of conditioned stimulus
+versus baseline and a relatively loose contrast of /P/ < 0.001. For each
+ROI, we extracted the mean beta estimates obtained from the GLM for the
+correlation of expected value $V$ with the BOLD response. The beta
+estimates were then entered as predictors in multivariable linear
+regressions.
+
+To assess the independent contributions of structural and functional
+indices on PTSD symptoms, we then calculated multivariable linear
+regressions including both the structural and functional indices as
+predictors, and the symptoms as measured with the CAPS as outcome
+measure. For each ROI, the structural index was the volume, the
+functional indices were the extracted mean beta estimates obtained from
+the computational GLM for the correlation of expected value $V$ with the
+BOLD response. These models were adjusted for learning rate, age,
+gender, head movement, and total intracranial volume to adjust for
+unspecific intersubject variability. 
+
+In addition to the amygdala, we extended our analysis to the dorsal
+anterior cingulate cortex (dACC), the striatum, and hippocampus. The
+dACC was defined with an independent functional contrast (Face A
+vs. Face B in acquisition, corresponding to CS+ vs. CS-); since Li and
+colleagues \cite{Li2011} found the strongest activation in the caudate
+nucleus, we used a contrast of shock occurrence versus baseline in a
+sample of healthy control participants who underwent the same task to
+ensure reliable activation. [[cite:Cools2002,Dodds2008]] Like the
+functional contrast for the dACC, this contrast for the striatum was
+also independent of the computational contrasts. The hippocampal ROI was
+defined anatomically using the WFU Pickatlas.\cite{Maldjian2003} We then
+used two separate general linear models (GLM) to examine neural activity
+related to value encoding (GLM 1) as well as associability and
+prediction error (GLM 2). Replicating the design of a previous study in
+reversal learning and value encoding for GLM 1, \cite{Atlas2016} we
+included value encoding as parametric modulator of stimulus onset and
+included shock occurrence and prediction error as additional regressors
+of stimulus offset. For GLM 2, we followed the design of the previous
+study by Li and colleagues \cite{Li2011} and included associability,
+shock occurrence, and prediction error as parametric modulators of
+stimulus offset.
+
+We then extracted the beta estimates of the region of interests and
+computed separate linear mixed models for value computation as well as
+associability and prediction error, respectively. Neural activity was
+used as the dependent variable in these models, and predictors for
+region and CAPS (model 1, predicting value computation) as well as
+learning component (model 2; predicting associability and prediction
+error) were entered as predictors. In addition, we included a random
+intercept and a random slope for region to account for the within
+subject correlations.  
+
+We also performed a computational analysis using the simpler
+Rescorla-Wagner learning model, with the fMRI regressors derived from
+the fits to the SCR data. Cue onset and offset were modeled as two
+discrete events, and each expected value ($V$) regressor was included as
+a parametric modulator of the stimulus onset event. In addition, the
+occurrence of a shock (0 for trials with no shock, 1 for trials with a
+shock) and prediction error were modeled as parametric modulators of cue
+offset, but are not considered in this study due to algebraic
+collinearity with the $V$ regressor. This means that the parametric
+regressor of interest was expected value, which modulated cue onset,
+while the regressors for shock outcome and prediction error were
+included in the design matrix (modulating cue offset) but are not
+considered in this study.
+
+While this setup is in line with previous studies using the same
+reversal paradigm together with computational
+modeling,\cite{Li2011,Atlas2016} we manually confirmed that that the
+amount of collinearity in the fMRI design matrix was acceptable. We
+calculated the variance inflation factor (VIF) for the value
+regressor. The VIF reflects how much the variance of the estimated
+regression coefficient is increased by the correlation among the model
+regressors. Its square root quantifies how much larger the standard
+error is compared with what it would be if the regressor were
+uncorrelated with the model regressors. While it is common practice to
+consider a VIF > 10 as problematic, it is important to note that even
+in the presence of collinearity the regression coefficients will be
+unbiased. As the term VIF suggests, what is affected is the variance of
+the estimates, resulting in increased noise and reduced statistical
+power. However, we verified that the VIF of the value regressor was
+below 5 for each participant, with a mean VIF across participants of 1.5
+(SD: 0.13) suggesting that collinearity was not an issue for this
+design. Supporting this conclusion, the effects for amygdala value
+computation on CAPS symptoms remained significant when including the
+amygdala activation during shocks in the same model (left:
+src_R[:session]{parse_lm(lmvshavl, 8)} {{{results(\beta = -0.34\, /t/
+(46) = -2.32\, /P/ = 0.025)}}}; right:
+src_R[:session]{parse_lm(lmvshavr, 8)} {{{results(\beta = -0.31\, /t/
+(46) = -2.14\, /P/ = 0.038)}}}).
+
+Six regressors modeling affine head-motion parameters were also included
+in the GLM. All events were convolved with a canonical gamma-variate
+hemodynamic response function (HRF). The contrast of interest was the
+correlation of expected value $V$, corresponding to the expectation of a
+shock on each trial, with the BOLD response in the brain. We thus
+computed images of this contrast for each participant and used the
+contrast images as input for the ROI-based analyses. Our ROI-based
+analysis focused on the amygdala. We defined the amygdala ROIs
+functionally, using an independent contrast of conditioned stimulus
+versus baseline and a relatively loose contrast of /P/ < 0.001. For each
+ROI, we extracted the mean beta estimates obtained from the GLM for the
+correlation of expected value $V$ with the BOLD response. The beta
+estimates were then entered as predictors in multivariable linear
+regressions.
+
+*** Statistical analysis
+To assess the independent contributions of structural and functional
+indices on PTSD symptoms, we then calculated multivariable linear
+regressions including both the structural and functional indices as
+predictors, and the symptoms as measured with the CAPS as outcome
+measure. For each ROI, the structural index was the volume, the
+functional indices were the extracted mean beta estimates obtained from
+the computational GLM for the correlation of expected value V with the
+BOLD response. These models were adjusted for learning rate, age,
+gender, head movement, and total intracranial volume to adjust for
+unspecific intersubject variability. The threshold for these analyses
+was set at /P/ < 0.05, two-tailed.
+
+** Data availability
+Data used to support the conclusions of this study is available online
+at: https://osf.io/rxsw2/.
+
+** Code availability
+The code used for the analyses is available online at:
+http://osf.io/rxsw2/.
+
+** Life Sciences Reporting Summary
+All information on experimental design is available in the Life Sciences
+Reporting Summary.
+
+\clearpage
+
+** Supplementary Tables and Figures
+\singlespacing
+
+*** Table. Excluded participants                                :ignore:
+ #+NAME: tabexcl
+ #+CAPTION: *Characteristics of excluded participants due to missing*
+ #+CAPTION: *skin conductance and/or functional imaging data.*
+ #+CAPTION: /Abbreviations/:
+ #+CAPTION: ASI, Anxiety Sensitivity Index; 
+ #+CAPTION: BDI, Beck Depression Inventory;
+ #+CAPTION: CAPS, Clinician-Administered PTSD Scale; 
+ #+CAPTION: CES, combat exposure score; STAIS,
+ #+CAPTION: subscale of the Spielberger State-Trait Anxiety Inventory; 
+ #+CAPTION: SD, Standard deviation; 
+ #+CAPTION: VCC, veteran combat controls; 
+ #+CAPTION: VPTSD, veterans with posttraumatic stress disorder.
+ #+ATTR_LATEX: :align lrrr 
+ #+RESULTS[44cfaa51cd5826d0e6d3a1988a8678589d3e3583]: exdfm
+ | *Characteristic* | */N/* | *Mean* |  *SD* |
+ |------------------+-------+--------+-------|
+ | Males            |     3 |        |       |
+ | Females          |     0 |        |       |
+ | VCC              |     0 |        |       |
+ | VPTSD            |     3 |        |       |
+ | Age              |     3 |  32.67 |  2.52 |
+ | Education        |     3 |   2.33 |  0.58 |
+ | ASI              |     2 |   15.5 | 14.85 |
+ | BDI              |     3 |  23.33 |  6.43 |
+ | CAPS             |     3 |     76 |  15.1 |
+ | CES              |     3 |  23.33 |  1.53 |
+ | STAIS            |     3 |  48.33 |  9.07 |
+
+\clearpage
+
+*** Figure. Histograms                                          :ignore:
+ #+BEGIN_SRC sh :exports results :results silent
+   pdfcrop ../output/figures/comp_figs1.pdf
+ #+END_SRC
+ #+ATTR_LATEX: :width 0.5\textwidth
+ #+CAPTION: *Distributions of psychopathology in the study*
+ #+CAPTION: *sample show the wide range of symptoms in the*
+ #+CAPTION: *participant, from completely*
+ #+CAPTION: *healthy to highly affected by PTSD.* 
+ #+CAPTION: ASI, Anxiety
+ #+CAPTION: Sensitivity Index; BDI, Beck Depression
+ #+CAPTION: Inventory; CAPS, Clinician-Administered
+ #+CAPTION: PTSD Scale; CES, combat exposure score;
+ #+CAPTION: STAIS, State Anxiety subscale of the
+ #+CAPTION: Spielberger State-Trait Anxiety Inventory.
+ #+NAME: fighist
+ [[file:comp_figs1-crop.pdf]]
+
+ \clearpage
+
+*** Figure. Sim hybrid                                          :ignore:
+ #+BEGIN_SRC sh :exports results :results silent
+  pdfcrop ../output/figures/comp_bayes_fig_sim_hybridalphav.pdf
+ #+END_SRC
+ #+ATTR_LATEX: :width 1.0\textwidth 
+ #+CAPTION: *Hierarchical Bayesian model recovers*
+ #+CAPTION: *simulated learning parameters*. To validate
+ #+CAPTION: our Hierarchical Bayesian hybrid model before
+ #+CAPTION: testing it in the clinical dataset, we
+ #+CAPTION: simulated skin conductance data in 20
+ #+CAPTION: participants. We estimated the initial
+ #+CAPTION: associability \alpha_{0}, \kappa,
+ #+CAPTION: the normalization factor,
+ #+CAPTION: and \eta, the prediction error weight.
+ #+CAPTION: *a. Simulated data in 20 subjects.*
+ #+CAPTION: *b. Correlations between estimated and simulated values.*
+ #+CAPTION: The Bayesian model successfully
+ #+CAPTION: recovered the simulated values.
+ #+CAPTION: *c. Estimated parameters with 90% credible intervals*
+ #+CAPTION: *and simulated parameters.* All simulated parameters 
+ #+CAPTION: were within the 90% credible intervals of the estimated
+ #+CAPTION: parameters, indicating successful parameter recovery.
+ #+CAPTION: $^{\ast\ast\ast}$, /P/ < 0.001.
+ #+NAME: figsimhybrid
+ [[file:comp_bayes_fig_sim_hybridalphav-crop.pdf]]
+
+ \clearpage
+
+*** Figure. Hybrid fits                                         :ignore:
+ #+BEGIN_SRC sh :exports results :results silent
+  pdfcrop ../output/figures/comp_figs6.pdf
+ #+END_SRC
+ #+CAPTION: *Average skin conductance response across*
+ #+CAPTION: *subjects and the best-fit associability*
+ #+CAPTION: *trace for all trials without a shock.* As
+ #+CAPTION: there were two experimental orders, time
+ #+CAPTION: courses are displayed for each order
+ #+CAPTION: separately. All traces were z-transformed
+ #+CAPTION: and mean-centered for displaying purpose.
+ #+NAME: figscrfithybrid
+ #+ATTR_LATEX: :width 1.0\textwidth 
+ [[file:comp_figs6-crop.pdf]]
+
+ \clearpage
+
+*** Figure. Hybrid MLE                                          :ignore:
+**** Code                                                       :ignore:
+**** Figure                                                     :ignore:
+ #+BEGIN_SRC sh :exports results :results silent
+  pdfcrop ../output/figures/comp_figs5.pdf
+ #+END_SRC
+#+ATTR_LATEX: :width 1.0\textwidth 
+#+CAPTION: *Model comparison using maximum likelihood* 
+#+CAPTION: *estimation (MLE) and the relationship*
+#+CAPTION: *of model fits PTSD symptoms.* 
+#+CAPTION: *a. MLE analysis is consistent with*
+#+CAPTION: *the Bayesian analysis and a previous study.* 
+#+CAPTION: In line with a previous study,\cite{Li2011} 
+#+CAPTION: the hybrid model
+#+CAPTION: with the lowest Bayesian Information
+#+CAPTION: Criterion (BIC) was the hybrid (\alpha +
+#+CAPTION: $V$) model, outperforming the other hybrid
+#+CAPTION: models as well as the Rescorla-Wagner (RW) model. 
+#+CAPTION: The asterisk indicates the winning model.
+#+CAPTION: *b. No evidence that model fits interacted with*
+#+CAPTION: *the symptom levels of PTSD.*
+#+CAPTION: The correlation between model fits and symptoms 
+#+CAPTION: was essentially flat for each of the 4 models.
+#+CAPTION: PTSD, posttraumatic stress disorder.
+#+CAPTION: CAPS, Clinician-Administered PTSD Scale;
+#+CAPTION: RW, Rescorla-Wagner model.
+#+NAME: fighybridmle
+[[file:comp_figs5-crop.pdf]]
+
+\clearpage
+
+*** Figure. Sim RW                                              :ignore:
+#+NAME: cropfig_bayessim
+#+BEGIN_SRC sh :exports results :results silent
+#  pdfcrop ../lib/ptsd_bayes_fig_bayessim.pdf
+#+END_SRC
+#+CAPTION: *Hierarchical Bayesian model recovers*
+#+CAPTION: *simulated learning parameters of a* 
+#+CAPTION: *Rescorla-Wagner model.* To validate
+#+CAPTION: our Hierarchical Bayesian model before
+#+CAPTION: testing it in the clinical dataset, we
+#+CAPTION: simulated skin conductance data in 30
+#+CAPTION: participants. We estimated the learning
+#+CAPTION: rate \alpha (the free parameter in the
+#+CAPTION: Rescorla-Wagner model) using our
+#+CAPTION: Hierarchical Bayesian model coded in Stan
+#+CAPTION: and also compared it to a Maximum
+#+CAPTION: Likelihood Estimation (MLE) using the
+#+CAPTION: non-linear optimizer fmincon in
+#+CAPTION: MATLAB. The Bayesian model successfully
+#+CAPTION: recovered the simulated values.
+#+NAME: figbayessim
+#+ATTR_LATEX: :width 0.8\textwidth 
+#+ATTR_LATEX: :options page=2  
+[[file:ptsd_bayes_fig_bayessim.png]]
+
+\clearpage
+
+*** Figure. SCR                                                 :ignore:
+ #+BEGIN_SRC sh :exports results :results silent
+  pdfcrop ../output/figures/ptsd_bayes_fig_scrfit.pdf
+ #+END_SRC
+
+ #+CAPTION: *Average skin conductance response across*
+ #+CAPTION: *subjects and the best-fit expected value*
+ #+CAPTION: *trace for all trials without a shock.* As
+ #+CAPTION: there were two experimental orders, time
+ #+CAPTION: courses are displayed for each order
+ #+CAPTION: separately. All traces were z-transformed
+ #+CAPTION: and mean-centered for displaying purpose.
+ #+NAME: figscrfit
+ #+ATTR_LATEX: :width 1.0\textwidth 
+ #+ATTR_LATEX: center:nil  
+ [[file:ptsd_bayes_fig_scrfit.pdf]]
+
+ \clearpage
+
+*** Figure. Amygdala RW value                                   :ignore:
+#+NAME: cropfig_alphapartcorr 
+#+BEGIN_SRC sh :exports results :results silent
+  pdfcrop ../output/figures/comp_fig5.pdf
+#+END_SRC
+#+CAPTION: *Amygdala structure and value computation contribute*
+#+CAPTION: *to PTSD symptoms using a Rescorla-Wagner model.* 
+#+CAPTION: *a. Regions of interest*
+#+CAPTION: *used in the computational imaging*
+#+CAPTION: *analysis.* The amygdala (red) was defined
+#+CAPTION: functionally, using the contrast of conditioned
+#+CAPTION: stimulus vs. baseline. 
+#+CAPTION: *b-d. Amygdala volume and*
+#+CAPTION: *value-dependent neural activity*
+#+CAPTION: *independently contribute to PTSD*
+#+CAPTION: *symptoms.* Partial correlations are shown
+#+CAPTION: (/N/ = src_R[:session]{nrow(compa)} {{{results(54)}}}). 
+#+CAPTION: Right amygdala volume and
+#+CAPTION: activity as well as left amygdala activity
+#+CAPTION: correlated negatively with the PTSD
+#+CAPTION: symptoms as measured with the
+#+CAPTION: CAPS. Regressions were adjusted for
+#+CAPTION: learning rate, age, gender, head movement,
+#+CAPTION: and total intracranial volume. CAPS,
+#+CAPTION: Clinician-Administered PTSD Scale; adj.,
+#+CAPTION: adjusted; **, /P/ < 0.01; *, /P/ < 0.05.
+#+NAME: figmultreg
+#+ATTR_LATEX: :width 1.0\textwidth
+[[file:comp_fig5-crop.pdf]]
+
+\clearpage
+
+*** Figure. Amygdala R                                          :ignore:
+ #+ATTR_LATEX: :width 1.0\textwidth 
+ #+CAPTION: *Individual amygdala regions of interest*
+ #+CAPTION: *for two illustrative participants.* Brain slices are
+ #+CAPTION: shown at x = 24, y = -4, z = -16 in the 
+ #+CAPTION: Montreal Neurological Institute (MNI) coordinate system.
+ #+CAPTION: using the neurological convention (i.e., left is left).
+ #+NAME: figamygex
+ [[file:comp_fmri_amygdala_indiv.png]]
+ 
+ \clearpage
+
+*** Figure. Correlation hybrid alpha and delta                  :ignore:
+**** Code                                                       :ignore:
+ #+HEADER: :exports none
+ #+BEGIN_SRC R :results silent :session
+ #trv <- t.test(compa$revlearn)
+ # test for a correlation between average alpha and delta from the 
+ # hybrid (alpha + v) model
+ havfits <- read.csv("../preproc/bayes/output/ptsd_bayes_stan_hybridalphav.csv")
+ #figdf <- comp %>% filter(stim %in% c("CSminus", "CSplus")) %>%
+ figdf <- comp %>%
+   dplyr::select(id, order, trial, stim) %>%
+   left_join(havfits %>%
+             filter(model=="hybridalphav",
+                    param %in% c("alpha", "delta"))) %>%
+   group_by(order, param, trial) %>%
+   dplyr::summarize(mean=mean(value)) 
+
+
+ rstata <- cor.test(figdf$mean[figdf$param=="alpha"&figdf$order=="A"], 
+                   figdf$mean[figdf$param=="delta"&figdf$order=="A"])
+
+ rstatb <- cor.test(figdf$mean[figdf$param=="alpha"&figdf$order=="B"], 
+                   figdf$mean[figdf$param=="delta"&figdf$order=="B"])
+
+ rstatab <- data.frame(estimate=c(rstata$estimate,
+                                  rstatb$estimate),
+                       p.value=c(rstata$p.value,
+                                 rstatb$p.value))
+
+ figdfw <- figdf %>% spread(key=param, value=mean)
+
+ g <- ggplot(figdfw, aes(x=delta, y=alpha)) +
+   geom_point(size=4) +
+   geom_smooth(method="lm") +
+   facet_wrap(~order, ncol=2) +
+   theme_gray(base_size=35) +
+   xlab(bquote(delta)) +
+   ylab(bquote(alpha)) +
+   annotate("text", x=Inf, y=Inf,
+            label=paste("r=", round(rstatab$estimate, 2),
+                        starsfromp(rstatab$p.value), sep=""),
+            size=6, hjust=1, vjust=1)
+
+
+
+ ggsave(plot=g, filename="../output/figures/comp_figs7.pdf",
+        width=11.3, height=5.92)
+
+ #+END_SRC
+
+**** Figure                                                     :ignore:
+ #+BEGIN_SRC sh :exports results :results silent
+  pdfcrop ../output/figures/comp_figs7.pdf
+ #+END_SRC
+ #+ATTR_LATEX: :width 1.0\textwidth 
+ #+CAPTION: *Regression of prediction error (\delta) and*
+ #+CAPTION: *associability (\alpha) shows that the two*
+ #+CAPTION: *learning components were not significantly*
+ #+CAPTION: *correlated.*
+ #+CAPTION: Data for both experimental orders (A and B)
+ #+CAPTION: is shown.
+ #+NAME: fighybriddeltaalpha
+ [[file:comp_figs7-crop.pdf]]
+
+ \clearpage
+
+ 
+ 
+ 
+
+ 
