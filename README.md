@@ -84,10 +84,7 @@ Ubuntu 18.04.1 LTS on emacs
 25.2.2 and org-mode
 9.1.7.
 
-<div class="statcounter"><a href="http://statcounter.com/" 
-target="_blank"><img
-src="//c.statcounter.com/11890365/0/aeab257f/1/"></a></div>
-
+![](http://c.statcounter.com/11890365/0/aeab257f/1/)
 ## Session info
 
     R version 3.5.1 (2018-07-02)
