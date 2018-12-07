@@ -84,8 +84,6 @@ Ubuntu 18.04.1 LTS on emacs
 25.2.2 and org-mode
 9.1.7.
 
-<img src="http://c.statcounter.com/11891271/0/a3c7330e/0/">
-
 ## Session info
 
     R version 3.5.1 (2018-07-02)
