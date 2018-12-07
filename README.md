@@ -84,8 +84,7 @@ Ubuntu 18.04.1 LTS on emacs
 25.2.2 and org-mode
 9.1.7.
 
-[![HitCount](http://hits.dwyl.io/philipphoman/comp.svg)](http://hits.dwyl.io/philipphoman/comp)
-
+<img src="http://c.statcounter.com/11891271/0/a3c7330e/0/">
 
 ## Session info
 
